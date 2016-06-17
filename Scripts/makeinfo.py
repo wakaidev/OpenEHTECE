@@ -34,5 +34,5 @@ configuration["card_cvv"] = input("Please enter the CVV for that credit card: ")
 configuration["card_exp_year"] = input("What year does this credit card expire? ")
 configuration["card_exp_month"] = input("What month does this credit card expire? ")
 
-with open("userinof.json", "w") as conffile:
+with open("userinfo.json", "w") as conffile:
     json.dump(configuration, conffile, sort_keys=True, indent=4)
