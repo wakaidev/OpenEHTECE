@@ -3,6 +3,7 @@ import requests
 import re
 from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
+from getconf import *
 
 #Constants
 base_url = 'http://www.supremenewyork.com'
