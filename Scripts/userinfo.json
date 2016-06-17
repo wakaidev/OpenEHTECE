@@ -4,7 +4,6 @@
     "card_exp_year": "",
     "card_number": "",
     "card_type": "",
-    "comment": "It is recommended to use a real card with a fake CVV - the card will the decline if the rest of the request is successful",
     "email": "",
     "first_name": "",
     "last_name": "",
@@ -13,8 +12,7 @@
     "shipping_address_2": "",
     "shipping_apt_suite": "",
     "shipping_city": "",
-    "shipping_state": "",
-    "shipping_zip": "",
     "shipping_country": "",
-    "size": ""
+    "shipping_state": "",
+    "shipping_zip": ""
 }
