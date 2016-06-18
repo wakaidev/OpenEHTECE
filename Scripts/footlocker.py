@@ -6,33 +6,14 @@ import json
 from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
 from urllib.request import Request, urlopen
+from getconf import *
+
 """
 NOTE:
 billAddressType changes from 'different' to 'new' possibly depending on if shipping/bill address is the same
 cant find hbg, bb_device_id, requestKey, despite it being on 'https://www.footlocker.com/checkout/ in browser'
 
 """
-
-with open("userinfo.json") as conffile:
-	userinfo = json.load(conffile)
-
-# No real better way...
-card_exp_month = userinfo["card_exp_month"]
-card_exp_year = userinfo["card_exp_year"]
-card_number = userinfo["card_number"]
-card_type = userinfo["card_type"]
-card_cvv = userinfo["card_cvv"]
-email = userinfo["email"]
-first_name = userinfo["first_name"]
-last_name = userinfo["last_name"]
-phone_number = userinfo["phone_number"]
-shipping_address_1 = userinfo["shipping_address_1"]
-shipping_address_2 = userinfo["shipping_address_2"]
-shipping_apt_suite = userinfo["shipping_apt_suite"]
-shipping_city = userinfo["shipping_city"]
-shipping_state = userinfo["shipping_state"]
-shipping_zip = userinfo["shipping_zip"]
-size = userinfo["size"]
 
 # User input
 use_early_link = True
