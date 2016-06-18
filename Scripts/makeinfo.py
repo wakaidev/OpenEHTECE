@@ -20,7 +20,7 @@ configuration["shipping_address_2"] = input("Please enter the second line of you
 configuration["shipping_apt_suite"] = input("Please enter your apartment/suite number, if applicable: ")
 configuration["shipping_city"] = input("Please enter your shipping city: ")
 configuration["shipping_state"] = input("Please enter your shipping state (not abbreviated): ")
-configuration["shippign_state_abbrv"] = input("Please enter your shipping state (abbreviated): ")
+configuration["shipping_state_abbrv"] = input("Please enter your shipping state (abbreviated): ")
 configuration["shipping_country"] = input("Please enter your shipping country: ")
 configuration["shipping_zip"] = input("Please enter your shipping zip/post code: ")
 print("")
