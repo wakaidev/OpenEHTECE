@@ -95,7 +95,7 @@ def checkout():
 	'giftCardPin_1':'',
 	'hbg': hbg,
 	'loginHeaderEmailAddress': email,
-	'loginHeaderPassword': ,
+	'loginHeaderPassword': '',
 	'loginPaneConfirmNewEmailAddress':'',
 	'loginPaneEmailAddress':'',
 	'loginPaneNewEmailAddress':'',
