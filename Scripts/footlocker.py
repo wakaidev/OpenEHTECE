@@ -5,7 +5,6 @@ import timeit
 import json
 from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
-from urllib.request import Request, urlopen
 from getconf import *
 
 """
@@ -95,8 +94,8 @@ def checkout():
 	'giftCardCode_1':'',
 	'giftCardPin_1':'',
 	'hbg': 'hbg',
-	'loginHeaderEmailAddress': 'mykalburris@gmail.com',
-	'loginHeaderPassword': '040312OP',
+	'loginHeaderEmailAddress': email',
+	'loginHeaderPassword': ,
 	'loginPaneConfirmNewEmailAddress':'',
 	'loginPaneEmailAddress':'',
 	'loginPaneNewEmailAddress':'',
