@@ -15,7 +15,7 @@ keywords_style = ['Multi']
 
 #Functions
 def product_page(url):
-    session = requests.session()
+    session = requests.Session()
     response = session.get(base_url + url)
     soup = bs(response.text, 'html.parser')
         
@@ -104,7 +104,7 @@ def checkout(session):
 #Main
 start = timeit.default_timer()
 
-session1 = requests.session()
+session1 = requests.Session()
 response1 = session1.get('http://www.supremenewyork.com/shop/all')
 soup1 = bs(response1.text, 'html.parser')
 links1 = soup1.find_all('a', href=True)
