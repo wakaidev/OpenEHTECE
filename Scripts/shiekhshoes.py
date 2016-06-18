@@ -74,7 +74,7 @@ def checkout():  # USA checkout
 # Main
 start = timeit.default_timer()
 
-session = requests.session()
+session = requests.Session()
 
 if use_early_link:
     response = session.get(early_link)
