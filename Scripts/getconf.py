@@ -19,4 +19,12 @@ shipping_city = userinfo["shipping_city"]
 shipping_state = userinfo["shipping_state"]
 shipping_state_abbrv = userinfo["shipping_state_abbrv"]
 shipping_zip = userinfo["shipping_zip"]
+billing_address_1 = userinfo["billing_address_1"]
+billing_address_2 = userinfo["billing_address_2"]
+billing_apt_suite = userinfo["billing_apt_suite"]
+billing_city = userinfo["billing_city"]
+billing_state = userinfo["billing_state"]
+billing_state_abbrv = userinfo["billing_state_abbrv"]
+billing_zip = userinfo["billing_zip"]
+
 
