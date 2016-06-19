@@ -15,5 +15,13 @@
     "shipping_country": "",
     "shipping_state": "",
     "shipping_state_abbrv": "",
-    "shipping_zip": ""
+    "shipping_zip": "",
+    "billing_address_1": "",
+    "billing_address_2": "",
+    "billing_apt_suite": "",
+    "billing_city": "",
+    "billing_country": "",
+    "billing_state": "",
+    "billing_state_abbrv": "",
+    "billing_zip": ""
 }
