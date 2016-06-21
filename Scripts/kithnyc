@@ -126,7 +126,7 @@ def checkout():
 		'utf8': '✓'
 	}
 	
-	response = session.post(form['action'], data=payload,headers=headers)  # payment
+	response = session.post(form['action'], data=payload, headers=headers)  # payment
 
 
 # Main
