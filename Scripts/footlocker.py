@@ -22,7 +22,6 @@ use_keyword = False
 
 def checkout():
 	# response = session.get('http://www.footlocker.com/shoppingcart/default.cfm?sku=')
-	# print(response)
 
 	payload = {
 		'BV_TrackingTag_QA_Display_Sort': '',
