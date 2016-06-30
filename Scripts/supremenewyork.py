@@ -108,7 +108,7 @@ def checkout(session):
 		'credit_card[month]': card_exp_month,
 		'credit_card[year]': card_exp_year,
 		'credit_card[vval]': card_cvv,
-		'order[terms]': '0',
+		'order[terms]': '1',
 		'hpcvv': ''
 	}
 
