@@ -5,6 +5,8 @@ from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
 from getconf import *
 
+#TO DO: early link capability
+
 # Constants
 base_url = 'http://www.supremenewyork.com'
 
@@ -118,30 +120,27 @@ def checkout(session):
 start = timeit.default_timer()
 
 session1 = requests.Session()
-if use_early_link:
-	session1.get(early_link)
-	checkout()
-else:
-	response1 = session1.get('http://www.supremenewyork.com/shop/all')
-	soup1 = bs(response1.text, 'html.parser')
-	links1 = soup1.find_all('a', href=True)
-	links_by_keyword1 = []
-	for link in links1:
-		for keyword in keywords_category:
-			if keyword in link['href']:
-				links_by_keyword1.append(link['href'])
 
-	pool1 = ThreadPool(len(links_by_keyword1))
+response1 = session1.get('http://www.supremenewyork.com/shop/all')
+soup1 = bs(response1.text, 'html.parser')
+links1 = soup1.find_all('a', href=True)
+links_by_keyword1 = []
+for link in links1:
+	for keyword in keywords_category:
+		if keyword in link['href']:
+			links_by_keyword1.append(link['href'])
 
-	nosession = True
-	while nosession:
-		print('Finding matching products...')
-		result1 = pool1.map(product_page, links_by_keyword1)
-		for session in result1:
-			if not session is None:
-				nosession = False
-				checkout(session)
-				break
+pool1 = ThreadPool(len(links_by_keyword1))
+
+nosession = True
+while nosession:
+	print('Finding matching products...')
+	result1 = pool1.map(product_page, links_by_keyword1)
+	for session in result1:
+		if not session is None:
+			nosession = False
+			checkout(session)
+			break
 
 stop = timeit.default_timer()
 print(stop - start)  # Get the runtime
