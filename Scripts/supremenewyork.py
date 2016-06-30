@@ -23,8 +23,7 @@ def product_page(url):
 	session = requests.Session()
 	response = session.get(base_url + url)
 	soup = bs(response.text, 'html.parser')
-	print(soup)
-
+	
 	h1 = soup.find('h1', {'itemprop': 'name'})
 	p = soup.find('p', {'itemprop': 'model'})
 	if not h1 is None:
