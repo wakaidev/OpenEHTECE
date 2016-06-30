@@ -22,6 +22,7 @@
     "billing_apt_suite": "",
     "billing_city": "",
     "billing_country": "",
+    "billing_country_abbrv": "",
     "billing_state": "",
     "billing_state_abbrv": "",
     "billing_zip": ""
