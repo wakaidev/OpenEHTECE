@@ -5,7 +5,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
 from getconf import *
 
-#TO DO: early link capability
+# TO DO: early link capability
 
 # Constants
 base_url = 'http://www.supremenewyork.com'
@@ -25,7 +25,7 @@ def product_page(url):
 	session = requests.Session()
 	response = session.get(base_url + url)
 	soup = bs(response.text, 'html.parser')
-	
+
 	h1 = soup.find('h1', {'itemprop': 'name'})
 	p = soup.find('p', {'itemprop': 'model'})
 	if not h1 is None:
@@ -83,7 +83,7 @@ def checkout(session):
 		'credit_card[month]': card_exp_month,
 		'credit_card[year]': card_exp_year,
 		'credit_card[vval]': card_cvv,
-		'order[terms]': '0,1',
+		'order[terms]': '1',
 		'hpcvv': '',
 		'cnt': '2'
 	}
@@ -108,12 +108,15 @@ def checkout(session):
 		'credit_card[month]': card_exp_month,
 		'credit_card[year]': card_exp_year,
 		'credit_card[vval]': card_cvv,
-		'order[terms]': '1',
+		'order[terms]': '0',
 		'hpcvv': ''
 	}
 
 	response = session.post('https://www.supremenewyork.com/checkout', data=payload)
-	print('Done! Check confirmation page.')
+	if 'Your order has been submitted' in response.text:
+		print('Checkout was successful!')
+	else:
+		print('Oops! There was an error.')
 
 
 # Main
