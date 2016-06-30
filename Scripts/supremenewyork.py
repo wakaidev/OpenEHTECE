@@ -47,6 +47,7 @@ def product_page(url):
 								}
 								response1 = session.post(base_url + form['action'], data=payload)
 								print('Added to cart!')
+								time.sleep(15)
 								return session
 
 
