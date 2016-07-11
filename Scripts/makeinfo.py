@@ -56,6 +56,7 @@ configuration["card_number"] = input("Please enter your credit card number: ")
 configuration["card_cvv"] = input("Please enter the CVV for that credit card: ")
 configuration["card_exp_year"] = input("Please enter your card expiration year: ")
 configuration["card_exp_month"] = input("Please enter your card expiration month: ")
+configuration["name_on_card"] = input("Please enter your name as it appears on this card")
 print("Thank you! All done.")
 
 with open("userinfo.json", "w") as conffile:
