@@ -10,10 +10,7 @@ from getconf import *
 use_early_link = True
 base_url = 'http://shop.bdgastore.com'
 early_link = base_url + '/collections/footwear/products/nike-tennis-classic-ultra-flyknit-5'
-shoe_size = '10.5'
-
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+shoe_size = '8'
 
 session = requests.Session()
 
@@ -21,6 +18,7 @@ def get_shoe_product_payload(soup):
     """Accepts soup of the product page, returns payload for proper size"""
 
     product_options = soup.select('#product-select option')
+    product_id = None
     for product in product_options:
         if ' {} '.format(shoe_size) in product.text:  # format so doesn't detect size in price
             product_id = product['value']
@@ -33,8 +31,8 @@ def get_shoe_product_payload(soup):
 
         print(bot_key)
     else:
-        print('Could not find correct size')
-        return
+        print('Could not find correct size, may be sold out')
+        quit()
 
     payload = {
         'id': product_id,
@@ -46,98 +44,80 @@ def get_shoe_product_payload(soup):
 
 def add_to_cart(early_link, shoe_size): # TODO: support for products other than shoes
 
+    print('adding to cart')
     response = session.get(early_link)
     content = response.content
     soup = bs(content, 'html.parser')
-
     payload = get_shoe_product_payload(soup)
 
     response = session.post(base_url + '/cart/add.js', data=payload)
-    content = response.content
-    soup = bs(content, 'html.parser')
-    print(soup)
-    cart_count = soup.find('span', {'class': 'cartcount'})
-    print(cart_count)
-    print('{} items now in cart'.format)
+    response.raise_for_status()
 
-
-
-
-
-
-
+    # Confirms item added to cart, can comment out to speed up script
+    cart = session.get(base_url + '/cart')
+    soup = bs(cart.content, 'html.parser')
+    cart_count = soup.find('span', 'cartcount').text
+    print('{} item added to cart'.format(cart_count))
 
 
 def check_out():
 
+    print('checking out')
     cart_url = 'http://shop.bdgastore.com/checkout'
     response = session.get(cart_url)
     soup = bs(response.content, 'html.parser')
-
-    #same action for each contact and shipping info
     form = soup.find('form', {'action': re.compile('(?<=shop.bdgastore.com)(.*)(?=/checkouts/)')})
+    print('submitting contact info')
+
 
     # Contact Info
-    payload = {
-    'utf8': '✓',
-    '_method': 'patch',
-    'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
-    'previous_step': 'contact_information',
-    'checkout[email]': email,
-    'checkout[shipping_address][first_name]': first_name,
-    'checkout[shipping_address][last_name]': last_name,
-    'checkout[shipping_address][company]': '',
-    'checkout[shipping_address][address1]': shipping_address_1,
-    'checkout[shipping_address][address2]': shipping_apt_suite,
-    'checkout[shipping_address][city]': shipping_city,
-    'checkout[shipping_address][country]': 'United States',
-    'checkout[shipping_address][province]': '',
-    'checkout[shipping_address][province]': '',
-    'checkout[shipping_address][province]': shipping_state,
-    'checkout[shipping_address][zip]': shipping_zip,
-    'checkout[shipping_address][phone]': phone_number,
-    'remember_me': 'false',
-    'step': 'shipping_method',
-    }
-
-    response = session.post(form['action'], data=payload)
-
-    print('after posting contact info, url is {}'.format(response.url))
-    assert('step=shipping_method' in response.url)
-    print('Sweeney' in response.text)
-
-    # Shipping Method
-    soup = bs(response.text, 'html.parser')
-    form = soup.find('form', {'action': re.compile('(?<=shop.bdgastore.com)(.*)(?=/checkouts/)')})
-    # shipping = soup.find('div', {'class': re.compile('(shopify-)(\d+)')})
-    # shipping = soup.select('body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div.section.section--shipping-method > div.section__content > div > div > div > label')
-    radio = soup.find('input', 'checkout[shipping_rate][id]')
-    radio = soup.select('#checkout_shipping_rate_id_shopify-10001-200-1300')
-    print(radio)
-
     payload = {
         'utf8': '✓',
         '_method': 'patch',
         'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
-        # 'checkout[shipping_rate][id]': form.find('input', {'name': 'checkout[shipping_rate][id]'})['value'],
+        'previous_step': 'contact_information',
+        'checkout[email]': email,
+        'checkout[shipping_address][first_name]': first_name,
+        'checkout[shipping_address][last_name]': last_name,
+        'checkout[shipping_address][company]': '',
+        'checkout[shipping_address][address1]': shipping_address_1,
+        'checkout[shipping_address][address2]': shipping_apt_suite,
+        'checkout[shipping_address][city]': shipping_city,
+        'checkout[shipping_address][country]': 'United States',
+        'checkout[shipping_address][province]': '',
+        'checkout[shipping_address][province]': '',
+        'checkout[shipping_address][province]': shipping_state,
+        'checkout[shipping_address][zip]': shipping_zip,
+        'checkout[shipping_address][phone]': phone_number,
+        'remember_me': 'false',
+        'step': 'shipping_method',
+        }
+    response = session.post(form['action'], data=payload)
+    assert('step=shipping_method' in response.url)
+
+
+    # Shipping Method
+    soup = bs(response.text, 'html.parser')
+    form = soup.find('form', {'action': re.compile('(?<=shop.bdgastore.com)(.*)(?=/checkouts/)')})
+    print('Submitting shipping info')
+
+    #TODO: Determine how to submit desired shipping_rate, uses default now
+    payload = {
+        'utf8': '✓',
+        '_method': 'patch',
+        'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
         'previous_step': 'shipping_method',
         'step': 'payment_method',
         # 'checkout[shipping_rate][id]': 'shopify -$50.01 - 100 - 9.00'
-    }
-
-    # print(payload)
+        }
 
     response = session.post(form['action'], data=payload)
-    print('after posting shipping info, url is {}'.format(response.url))
     assert('step=payment' in response.url)
-    print('$100.01-200' in response.text)
-    print(response.url)
 
-
-    #Payment
+    #Payment Information
     soup = bs(response.text, 'html.parser')
     form = soup.find('form', {'action': re.compile('deposit')})
-
+    print('submitting payment info')
 
     payload = {
         'utf8': '✓',
@@ -160,13 +140,12 @@ def check_out():
         'checkout[client_details][browser_width]': '665',
         'checkout[client_details][browser_height]': '705',
         'checkout[client_details][javascript_enabled]': '1'
-    }
+        }
 
-    print(payload)
+    response = session.post(form['action'], data=payload) # TODO: not tested with real cvv, but form submission seems to work
 
-    response = session.post(form['action'], data=payload)
-
-    print('after posting payment info, url is {}'.format(response.url))
+    print('Checkout complete. Please view the following page to confirm')
+    print(response.url)
 
 
 
