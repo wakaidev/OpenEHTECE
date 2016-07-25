@@ -1,4 +1,13 @@
 {
+    "billing_address_1": "",
+    "billing_address_2": "",
+    "billing_apt_suite": "",
+    "billing_city": "",
+    "billing_country": "",
+    "billing_country_abbrv": "",
+    "billing_state": "",
+    "billing_state_abbrv": "",
+    "billing_zip": "",
     "card_cvv": "",
     "card_exp_month": "",
     "card_exp_year": "",
@@ -17,14 +26,5 @@
     "shipping_country_abbrv": "",
     "shipping_state": "",
     "shipping_state_abbrv": "",
-    "shipping_zip": "",
-    "billing_address_1": "",
-    "billing_address_2": "",
-    "billing_apt_suite": "",
-    "billing_city": "",
-    "billing_country": "",
-    "billing_country_abbrv": "",
-    "billing_state": "",
-    "billing_state_abbrv": "",
-    "billing_zip": ""
+    "shipping_zip": ""
 }

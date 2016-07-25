@@ -2,6 +2,7 @@
 import requests
 import re
 import timeit
+import json
 from bs4 import BeautifulSoup as bs
 from getconf import *
 
@@ -12,79 +13,30 @@ early_link = 'https://caliroots.com/adidas-originals-tubular-nova-primeknit-s749
 
 def checkout():  # USA checkout
     # TODO: Get rid of this by making a list of state codes
-    response = session.get('https://caliroots.com/cart/view')
+    response = session.get('https://caliroots.com/express/checkout/49')
     soup = bs(response.text, 'html.parser')
+    scripts = soup.findAll('script')
+    for script in scripts:
+        if 'window.meta    = ' in script.getText():
+            regex = re.compile('window\.meta    = ((.|\n)*?);')
+            match = regex.search(script.getText())
+            meta = json.loads(match.groups()[0])
+            print (soup)
 
-    state_ids = soup.find_all('option')
-    regexp = re.compile(shipping_state)
-    state_id = ''
-    for state in state_ids:
-        if regexp.search(state.getText()) is not None:
-            state_id = state['value']
-            continue
-
-    form = soup.find('form', {'action' : '/cart/process'})
-
-    payload = {
-        '_AntiCsrfToken' : form.find('input', {'name' : '_AntiCsrfToken'})['value'],
-        'country' : 'US',
-        'region' : state_id,
-        'id' : form.find('input', {'name' : 'id'})['value'],
-        'paymentProvider.giftcard.code' : '',
-        'emailAddress' : email,
-        'repeatEmailAddress' : email,
-        'postalCodeQuery' : shipping_zip,
-        'firstName' : first_name,
-        'lastName' : last_name,
-        'addressLine2' : shipping_address_1,
-        'addressLine3' : shipping_apt_suite,
-        'postalCode' : shipping_zip,
-        'city' : shipping_city,
-        'phoneNumber' : phone_number,
-        'termsAccepted' : 'true'
-    }
-    print(payload)
-    response = session.post('https://caliroots.com/cart/process', data=payload)
-    print (bs(response.text, 'html.parser'))
-
-    '''
-    payload = {
-        '__VIEWSTATEGENERATOR': '277BF4AB',
-        'blackbox': '',
-        'ShippingCountryId': '222',  # USA code
-        'ShippingFirstName': first_name,
-        'ShippingLastName': last_name,
-        'ShippingAddress1': shipping_address_1,
-        'ShippingAddress2': shipping_address_2,
-        'ShippingAptSuite': shipping_apt_suite,
-        'ShippingZip': shipping_zip,
-        'ShippingCity': shipping_city,
-        'ShippingStateId': state_id,
-        'ShippingMethodId': '1',
-        'BillingAddressSameAsSippingAddress': 'true',
-        'BillingFirstName': first_name,
-        'BillingLastName': last_name,
-        'BillingCardType': card_type,
-        'BillingCardNumber': card_number,
-        'BillingCardExpirationMonth': card_exp_month,
-        'BillingCardExpirationYear': card_exp_year,
-        'BillingCardSecurityCode': card_cvv,
-        'OrderNote': '',
-        'PhoneNumber': phone_number,
-        'GuestEmail': email,
-        'CacheStatus': 'cached',
-        'HasShippingAddress': 'false',
-        'PayWithPayPal': 'false',
-        'CustomerEmailAddress': '',
-        'CustomerFirstName': '',
-        'CustomerLastName': ''
-    }
-
-    response = session.post('https://www.shiekhshoes.com/api/ShoppingCart/ProcessCheckout', data=payload)
-    print(response.text)
-    '''
-
-
+            print (meta)
+            payload = {
+                'ctx.COUNTRY' : 'GB',
+                'meta' : {
+                    'token' : meta.token,
+                    'calc' : meta.calc,
+                    'csci' : meta.csci,
+                    'locale' : meta.locality,
+                    'state' : 'ui_checkout_login',
+                    'app_name' : 'hermesnodeweb'
+                }
+            }
+            response = session.get('https://www.paypal.com/webapps/hermes/api/pxp/xo_aries_hermes_guest_throttle', data=payload)
+            print (response.text)
 # Main
 start = timeit.default_timer()
 
