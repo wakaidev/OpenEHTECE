@@ -22,9 +22,10 @@ configuration["shipping_apt_suite"] = input("Please enter your apartment/suite n
 configuration["shipping_city"] = input("Please enter your shipping city: ")
 configuration["shipping_state"] = input("Please enter your shipping state (not abbreviated): ")
 configuration["shipping_state_abbrv"] = input("Please enter your shipping state (abbreviated): ")
-configuration["shipping_country"] = input("Please enter your shipping country: ")
+configuration["shipping_country"] = input("Please enter your shipping country (not abbreviated): ")
 configuration["shipping_country_abbrv"] = input("Please enter your shipping country (abbreviated): ")
 configuration["shipping_zip"] = input("Please enter your shipping zip/post code: ")
+
 billing = input("Is your billing address different than the shipping address? [Y/N]: ").title()
 if billing in ["Y", "Yes"]:
 	configuration["billing_address_1"] = input("Please enter the first line of your billing address: ")
@@ -44,7 +45,7 @@ else:
 	configuration["billing_state"] = configuration["shipping_state"]
 	configuration["billing_state_abbrv"] = configuration["shipping_state_abbrv"]
 	configuration["billing_country"] = configuration["shipping_country"]
-	configuration["billing_country_abbrv"] = input("Please enter your billing country (abbreviated): ")
+	configuration["billing_country_abbrv"] = configuration["shiping_country_abbrv"]
 	configuration["billing_zip"] = configuration["shipping_zip"]
 
 configuration["card_type"] = input("Please enter your credit card type (Visa, MasterCard, Amex...)? ")
@@ -56,7 +57,7 @@ configuration["card_number"] = input("Please enter your credit card number: ")
 configuration["card_cvv"] = input("Please enter the CVV for that credit card: ")
 configuration["card_exp_year"] = input("Please enter your card expiration year: ")
 configuration["card_exp_month"] = input("Please enter your card expiration month: ")
-configuration["name_on_card"] = input("Please enter your name as it appears on this card")
+configuration["name_on_card"] = input("Please enter your name as it appears on this card: ")
 print("Thank you! All done.")
 
 with open("userinfo.json", "w") as conffile:
