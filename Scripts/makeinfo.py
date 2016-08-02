@@ -45,7 +45,7 @@ else:
 	configuration["billing_state"] = configuration["shipping_state"]
 	configuration["billing_state_abbrv"] = configuration["shipping_state_abbrv"]
 	configuration["billing_country"] = configuration["shipping_country"]
-	configuration["billing_country_abbrv"] = configuration["shiping_country_abbrv"]
+	configuration["billing_country_abbrv"] = configuration["shipping_country_abbrv"]
 	configuration["billing_zip"] = configuration["shipping_zip"]
 
 configuration["card_type"] = input("Please enter your credit card type (Visa, MasterCard, Amex...)? ")
