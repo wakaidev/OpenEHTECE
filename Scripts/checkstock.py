@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 # Basic stock checker by making manual searches for a product (NMD in this case)
 # Need to update this to be more general
-# NOTE: You need to have your own JSON file produced @ https://console.developers.google.com/project
-# You must alsp import:
-# gspread
-# oauth2client==1.5.2
 
 import requests
 import re
 import json
 import time
-import gspread
 from bs4 import BeautifulSoup as bs
-from oauth2client.client import SignedJwtAssertionCredentials
+
+query = "nmd"
 
 def einhalb():
     print ('43einhalb...')
-    response = session.get('http://www.43einhalb.com/en/search?searchstring=nmd')
+    response = session.get('http://www.43einhalb.com/en/search?searchstring=' + query)
     soup = bs(response.text, 'html.parser')
     productListing = soup.find('ul', {'class' : 'productListing'})
     items = productListing.findAll('li', {'class' : 'item'})
@@ -28,7 +24,7 @@ def einhalb():
             
 def overkill():
     print ('Overkill...')
-    response = session.get('https://www.overkillshop.com/en/catalogsearch/result/?q=nmd')
+    response = session.get('https://www.overkillshop.com/en/catalogsearch/result/?q=' + query)
     soup = bs(response.text, 'html.parser')
     productListing = soup.find('ul', {'class' : 'products-grid'})
     if not productListing is None:
@@ -43,7 +39,7 @@ def overkill():
 
 def sns():
     print ('Sneakersnstuff...')
-    response = session.get('http://www.jdsports.co.uk/search/nmd/')
+    response = session.get('http://www.jdsports.co.uk/search/' + query + '/')
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li', {'class' : 'product'})
     for item in items:
@@ -53,7 +49,7 @@ def sns():
 
 def oneblockdown():
     print ('One Block Down...')
-    response = session.get('http://www.oneblockdown.it/en/search/nmd')
+    response = session.get('http://www.oneblockdown.it/en/search/' + query)
     soup = bs(response.text, 'html.parser')
     scripts = soup.findAll('script')
     for script in scripts:
@@ -68,7 +64,7 @@ def oneblockdown():
 
 def offspring():
     print ('Offspring...')
-    response = session.get('http://www.offspring.co.uk/view/search?search=nmd')
+    response = session.get('http://www.offspring.co.uk/view/search?search=' + query)
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('div', {'class' : 'productList_item'})
     for item in items:
@@ -84,7 +80,7 @@ def offspring():
 
 def titolo():
     print ('Titolo...')
-    response = session.get('https://en.titoloshop.com/catalogsearch/result/?q=nmd')
+    response = session.get('https://en.titoloshop.com/catalogsearch/result/?q=' + query)
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li', {'class' : 'item'})
     for item in items:
@@ -93,16 +89,16 @@ def titolo():
 
 def solebox():
     print ('Solebox...')
-    response = session.get('https://www.solebox.com/catalogsearch/result/?q=nmd')
+    response = session.get('https://www.solebox.com/catalogsearch/result/?q=' + query)
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li', {'class' : 'product-grid-item'})
     for item in items:
-        if 'NMD' in item.find('h2').getText() and item.find('div', {'class' : 'value'}) is None:
+        if query in item.find('h2').getText() and item.find('div', {'class' : 'value'}) is None:
             printToSheet(item.find('a')['title'], item.find('a')['href'])
 
 def endclothing():
     print ('end Clothing...')
-    response = session.get('http://www.endclothing.com/gb/catalogsearch/result/?q=nmd')
+    response = session.get('http://www.endclothing.com/gb/catalogsearch/result/?q=' + query)
     soup = bs(response.text, 'html.parser')
     print (soup)
     items = soup.findAll('div', {'class' : 'thumbnail item'})
@@ -118,7 +114,7 @@ def endclothing():
 
 def jdsports():
     print ('JDSports...')
-    response = session.get('http://www.jdsports.co.uk/search/nmd/')
+    response = session.get('http://www.jdsports.co.uk/search/' + query + '/')
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li', {'class' : 'listItem'})
     for item in items:
@@ -133,7 +129,7 @@ def jdsports():
 
 def zolando():
     print ('Zolando...')
-    response = session.get('https://www.zalando.co.uk/catalog/?q=nmd&qf=1')
+    response = session.get('https://www.zalando.co.uk/catalog/?q=' + query + '&qf=1')
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li', {'class' : 'catalogArticlesList_item'})
     for item in items:
@@ -142,7 +138,7 @@ def zolando():
 
 def bluetomato():
     print ('Blue Tomato...')
-    response = session.get('https://www.blue-tomato.com/en-GB/page/adidas-originals-nmd/')
+    response = session.get('https://www.blue-tomato.com/en-GB/page/adidas-originals-' + query + '/')
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li', {'class' : 'productcell'})
     for item in items:
@@ -155,7 +151,7 @@ def bluetomato():
 
 def caliroots():
     print ('Caliroots...')
-    response = session.get('https://caliroots.com/search/searchbytext?key=nmd')
+    response = session.get('https://caliroots.com/search/searchbytext?key=' + query)
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li', {'class' : 'product'})
     for item in items:
@@ -165,7 +161,7 @@ def caliroots():
 
 def eastbay():
     print ('Eastbay...')
-    response = session.get('http://www.eastbay.com/Shoes/_-_/N-ne/keyword-nmd?cm_REF=Shoes&Nr=AND%28P_RecordType%3AProduct%29')
+    response = session.get('http://www.eastbay.com/Shoes/_-_/N-ne/keyword-' + query + '?cm_REF=Shoes&Nr=AND%28P_RecordType%3AProduct%29')
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li')
     for item in items:
@@ -177,7 +173,7 @@ def eastbay():
 
 def nakedcph():
     print ('Naked CPH...')
-    response = session.get('http://www.nakedcph.com/catalog?search=nmd')
+    response = session.get('http://www.nakedcph.com/catalog?search=' + query)
     soup = bs(response.text, 'html.parser')
     items_list = soup.find('ul', {'class' : 'list-commodity list-commodity-grid'})
     items = items_list.findAll('li')
@@ -190,7 +186,7 @@ def nakedcph():
 
 def snipes():
     print ('Snipes...')
-    response = session.get('https://www.snipes.com/search.html?q=nmd&submit=Finden')
+    response = session.get('https://www.snipes.com/search.html?q=' + query + '&submit=Finden')
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('dl', {'class' : 'm_product_thumb'})
     for item in items:
@@ -203,7 +199,7 @@ def snipes():
 
 def asphaltgold():
     print ('Asphalt Gold...')
-    response = session.get('https://asphaltgold.de/de/catalogsearch/result/?q=nmd')
+    response = session.get('https://asphaltgold.de/de/catalogsearch/result/?q=' + query)
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('section', {'class' : 'item'})
     for item in items:
@@ -216,7 +212,7 @@ def asphaltgold():
 
 def baskets():
     print ('Baskets...')
-    response = session.get('http://www.baskets-store.com/catalogsearch/result/?q=nmd')
+    response = session.get('http://www.baskets-store.com/catalogsearch/result/?q=' + query)
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('div', {'class' : 'item'})
     for item in items:
@@ -232,7 +228,7 @@ def baskets():
 
 def bertola():
     print ('Bertola...')
-    response = session.get('http://www.bertolashop.com/storeonline/gb/ricerca?controller=search&orderby=position&orderway=desc&search_query=nmd&submit_search=')
+    response = session.get('http://www.bertolashop.com/storeonline/gb/ricerca?controller=search&orderby=position&orderway=desc&search_query=' + query + '&submit_search=')
     soup = bs(response.text, 'html.parser')
     items = soup.findAll('li', {'class' : 'ajax_block_product'})
     for item in items:
@@ -242,75 +238,15 @@ def bertola():
 
 def asos():
     print ('ASOS...')
-    response = session.get('http://www.asos.com/search/nmd?q=nmd')
+    response = session.get('http://www.asos.com/search/' + query + '?q=' + query)
     soup = bs(response.text, 'html.parser')
     item = soup.find('a', {'class' : 'add-to-bag'})
     if not item is None:
         printToSheet(soup.find('title').getText(), soup.find('link', {'rel' : 'alternate'})['href'])
 
-def setEnd():
-    global end
-    for x in range(end, ws.row_count+1):
-        if ws.cell(x, 1).value == '':
-            end = x
-            return
-
-def initSheet():
-    for x in range(1, ws.row_count):
-        if ws.cell(x, 1).value != '':
-            sheet.append([ws.cell(x, 1).value, ws.cell(x, 2).value, False])
-    setEnd()
-            
-def recheckSheet():
-    global end
-    global sheet
-    
-    row_num = 1
-    for row in sheet:
-        if row[2] == False:
-            temp_link = ws.cell(row_num, 2).value
-            ws.update_cell(row_num, 1, '')
-            ws.update_cell(row_num, 2, '')
-            if temp_link != '':
-                ws.update_cell(row_num, 3, 'Deleted: ' + temp_link)
-            if row_num < end:
-                end = row_num
-
-        if ws.cell(row_num, '3').value == 'New':
-            ws.update_cell(row_num, 3, '')
-            
-        row_num = row_num + 1
-    sheet = []
-    initSheet()
 
 def printToSheet(title, link):
-    global end
-    
-    duplicate = False
-    for row in sheet:
-        if row[0] == title and row[1] == link:
-            duplicate = True
-            row[2] = True
-        
-    if not duplicate:
-        ws.update_cell(end, 1, title)
-        ws.update_cell(end, 2, link)
-        ws.update_cell(end, 3, 'New')
-        sheet.append([ws.cell(end, 1).value, ws.cell(end, 2).value, True])
-        if (ws.row_count == end):
-            end = end + 1
-            ws.add_rows(1)
-        else:
-            setEnd()
-
-json_key = json.load(open('YOURJSONFILE.json'))
-scope = ['https://spreadsheets.google.com/feeds']
-credentials = SignedJwtAssertionCredentials(json_key['client_email'], json_key['private_key'].encode(), scope)
-gc = gspread.authorize(credentials)
-ws = gc.open('YOURSPREADSHEET').sheet1
-
-end = 1
-sheet = []
+    print (link)
 
 session = requests.session()
 
@@ -318,14 +254,11 @@ sites = [asos, bertola, baskets, asphaltgold, einhalb, overkill, sns,
          oneblockdown, offspring, titolo, solebox, jdsports, zolando,
          bluetomato, caliroots, eastbay, snipes]
 while True:
-    recheckSheet()
-
     for x in range(0, len(sites)):
         try:
             sites[x]()
         except Exception:
             pass
-    
-    #endclothing()
-    
+
     print ('')
+    time.sleep(60)
