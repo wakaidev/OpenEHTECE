@@ -65,7 +65,7 @@ def checkout():
 
 	sleep()
 
-	soup = bs(response.text, 'lxml')
+	soup = bs(response.text, 'html.parser')l
 	url = soup.find('div', {'class': 'cart_wrapper rbk_shadow_angle rbk_wrapper_checkout summary_wrapper'})['data-url']
 	delivery_key = soup.find('input', {'name': 'dwfrm_delivery_securekey'})['value']
 
