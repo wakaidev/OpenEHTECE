@@ -21,7 +21,7 @@ def add_to_cart():
 
 	product_url = response.url
 
-	soup = bs(response.text, 'lxml')
+	soup = bs(response.text, 'html.parser')
 	size_container = soup.find('select', {'name': 'pid'})
 	size_val = 'null'
 
