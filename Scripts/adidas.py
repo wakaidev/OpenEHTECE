@@ -5,30 +5,41 @@ import timeit
 import time
 from getconf import *
 
-# TODO: login function, captcha
+# TODO: captcha -- selenium or tesseract
 
 base_url = 'https://www.adidas.com'
-product_id = 'BB3900'
-size = '6.5'
+product_id = 'BA8581'
+size = '7.5'
 
-def sleep():
-	time.sleep(5)
+
+def sleep(sec):
+	time.sleep(sec)
+
 
 def add_to_cart():
 	response = session.get(base_url + '/us/' + product_id + '.html', headers={'Upgrade-Insecure-Requests': '1'})
-	print(response)
-	sleep()
 
-	product_url = response.url
+	url = response.url
 
 	soup = bs(response.text, 'html.parser')
+
 	size_container = soup.find('select', {'name': 'pid'})
+
+	# possible solution to queue
+	#while size_container is None:
+	#	sleep(.1)
+
 	size_val = 'null'
 
-	for values in size_container.find_all('option'):
-		if size == values.string.strip():
-			size_val = values['value']
-			break
+	# check if sizes are sold out, if not find size value
+	try:
+		for values in size_container.find_all('option'):
+			if size == values.string.strip():
+				size_val = values['value']
+				break
+	except:
+		print('All sold out!')
+		return False, 'null', 'null'
 
 	payload = {
 		'Quantity': '1',
@@ -46,26 +57,26 @@ def add_to_cart():
 	if size_val != 'null':
 		url = base_url + '/on/demandware.store/Sites-adidas-US-Site/en_US/Cart-MiniAddProduct'
 		response = session.post(url, data=payload, headers=headers)
-		print(response)
-		sleep()
-		return True, product_url, size_val
+		if response.status_code == 200:
+			print('Shoe was added to cart...')
+		# sleep()
+		return True, url, size_val
 	else:
-		cookies = {}
-		return False, product_url, size_val
+		print('{} unavailable'.format(size))
+		return False, url, size_val
 
 
 def checkout():
+	print('Checking out...')
 	headers = {
 		'Upgrade-Insecure-Requests': '1',
 		'Referer': product_url,
 		'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
 	}
 	response = session.get(base_url + '/us/delivery-start', headers=headers)
-	print(response)
 
-	sleep()
-
-	soup = bs(response.text, 'html.parser')l
+	# sleep()
+	soup = bs(response.text, 'html.parser')
 	url = soup.find('div', {'class': 'cart_wrapper rbk_shadow_angle rbk_wrapper_checkout summary_wrapper'})['data-url']
 	delivery_key = soup.find('input', {'name': 'dwfrm_delivery_securekey'})['value']
 
@@ -116,7 +127,6 @@ def checkout():
 	}
 
 	response = session.post(url, data=payload, headers=headers)
-	print(response)
 
 	# review & pay
 	headers = {
@@ -138,8 +148,8 @@ def checkout():
 
 	url = soup.find('form', {'id': 'dwfrm_delivery'})['action']
 	response = session.post(url, data=payload, headers=headers)
-	print(response)
-
+	if response.status_code == 200:
+		print('Check your email for confirmation!')
 
 # Main
 start = timeit.default_timer()
@@ -159,5 +169,3 @@ if successful:
 	checkout()
 
 print(timeit.default_timer()-start)
-
-
