@@ -5,7 +5,7 @@ import timeit
 import time
 from getconf import *
 
-# TODO: captcha -- selenium or tesseract
+# TODO: captcha -- selenium or selenium-requests?
 
 base_url = 'https://www.adidas.com'
 product_id = 'BA8581'
