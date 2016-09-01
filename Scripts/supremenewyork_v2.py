@@ -6,6 +6,7 @@ import time
 import sys
 import re
 from getconf import *
+from formatlibs import *
 
 # TO DO: scrape for early links
 
@@ -130,15 +131,6 @@ def add_to_cart(soup, url):
 	else:
 		sys.exit('Sorry, product is sold out!')
 
-
-def format_phone(n):
-	return '({}) {}-{}'.format(n[:3], n[3:6], n[6:])
-
-
-def format_card(n):
-	return '{} {} {} {}'.format(n[:4], n[4:8], n[8:12], n[12:])
-
-
 def checkout(session):
 	print('Filling out checkout info...')
 	response = session.get('https://www.supremenewyork.com/checkout')
@@ -224,7 +216,7 @@ def checkout(session):
 
 
 # Main
-start = timeit.default_timer()
+tick()
 
 session1 = requests.Session()
 session1.headers.update({
@@ -263,6 +255,4 @@ else:
 	print(links_by_keyword1)
 	result1 = pool1.map(product_page, links_by_keyword1)
 
-
-stop = timeit.default_timer()
-print(stop - start)  # runtime
+tock() # runtime
