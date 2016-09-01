@@ -1,18 +1,17 @@
-import timeit
-import sys
-import time
-import requests
-import re
 from multiprocessing.dummy import Pool as ThreadPool
-
 from bs4 import BeautifulSoup as bs
+import requests
+import timeit
+import time
+import sys
+import re
 from getconf import *
 
 # TO DO: early link capability
 
 # Constants
 base_url = 'http://www.supremenewyork.com'
-requests.packages.urllib3.disable_warnings()
+
 # Inputs
 keywords_category = ['bags']  # Demo stuff, feel free to change
 keywords_model = ['Reflective', 'Repeat', 'Backpack']
@@ -45,13 +44,9 @@ def product_page(url):
 
 	match = []
 
-	name = 'null'
-	style = 'null'
-
 	if h1 is not None and p is not None:
 		name = h1.string
 		style = p.string
-		# print(name + ': ' + style)
 
 		for keyword in keywords_model:
 			if keyword in name:
