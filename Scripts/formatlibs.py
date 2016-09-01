@@ -13,6 +13,6 @@ def tick():
     return tick
 
 def tock():
-    tock = timeit.default_timer() - tick
-    print(tock)
+    tock = timeit.default_timer()
+    print(tock - tick)
     return tock
