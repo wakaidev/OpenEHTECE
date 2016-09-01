@@ -13,6 +13,7 @@ You'll also need BeautifulSoup4 and requests:
 ```sh
 $ pip install bs4
 $ pip install requests
+$ pip install urllib3 --upgrade
 ```
 
 You may also wish to use the included setup script to fill in your info
