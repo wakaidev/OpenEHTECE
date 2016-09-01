@@ -13,11 +13,11 @@ from getconf import *
 base_url = 'http://www.supremenewyork.com'
 
 # Inputs
-keywords_category = ['shirt']  # Demo stuff, feel free to change
+keywords_category = ['shirts']  # Demo stuff, feel free to change
 keywords_model = ['mini', 'shadow', 'plaid', 'shirt']
-keywords_style = ['Black']
+keywords_style = ['blue']
 
-size = ''
+size = 'medium'
 
 use_early_link = False
 
@@ -46,6 +46,7 @@ def product_page(url):
 	soup = bs(response.text, 'html.parser')
 
 	h1 = soup.find('h1', {'itemprop': 'name'})
+
 	p = soup.find('p', {'itemprop': 'model'})
 
 	match = []
@@ -76,7 +77,8 @@ def product_page(url):
 
 
 def add_to_cart(soup, url):
-	print('Adding to cart...')
+	product_name = soup.find('h1',{'itemprop': 'name'}).string
+	print('Adding {} to cart...'.format(product_name))
 	session = requests.Session()
 	session.headers.update({
 		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -247,11 +249,13 @@ else:
 	for link in links1:
 		for keyword in keywords_category:
 			product_link = link['href']
-			if keyword in product_link:
+			if keyword in product_link and 'all' not in product_link:
 				if product_link not in links_by_keyword1:
 					links_by_keyword1.append(link['href'])
 	pool1 = ThreadPool(len(links_by_keyword1))
+	print(links_by_keyword1)
 	result1 = pool1.map(product_page, links_by_keyword1)
+
 
 stop = timeit.default_timer()
 print(stop - start)  # runtime
