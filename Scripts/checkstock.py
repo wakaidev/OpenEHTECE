@@ -207,7 +207,7 @@ def asphaltgold():
         soup = bs(response.text, 'html.parser')
         availability = soup.find('button', {'class' : 'btn-cart'})
         countdown = soup.find('div', {'id' : 'productrelease_countdown'})
-        if not countdown is None or not 'Derzeit nicht' in availability.getText():
+        if not countdown is None or not availability is None or not 'Derzeit nicht' in availability.getText():
             printToSheet(item.findAll('a')[1].getText(), item.find('a')['href'])
 
 def baskets():
@@ -258,6 +258,7 @@ while True:
         try:
             sites[x]()
         except Exception:
+            print ('ERROR')
             pass
 
     print ('')
