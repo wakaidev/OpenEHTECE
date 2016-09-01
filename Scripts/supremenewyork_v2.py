@@ -54,7 +54,7 @@ def product_page(url):
 		style = p.string
 
 		for keyword in keywords_model:
-			if keyword in name:
+			if keyword.title() in name:
 				match.append(1)
 			else:
 				match.append(0)
@@ -62,7 +62,7 @@ def product_page(url):
 		# add to cart
 		if 0 not in match:
 			for keyword in keywords_style:
-				if keyword in style:
+				if keyword.title() in style:
 					match.append(1)
 				else:
 					match.append(0)
