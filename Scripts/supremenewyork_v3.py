@@ -31,6 +31,7 @@ early_link = ''
 
 # Functions
 def product_page(url):
+	print('Finding matching products...')
 	session = requests.Session()
 	session.headers.update({
 		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -52,25 +53,28 @@ def product_page(url):
 	match = []
 
 	if h1 is not None and p is not None:
-		name = h1.string
+		model = h1.string
 		style = p.string
 
 		for keyword in keywords_model:
-			if keyword in name:
+			if keyword.title() in model:
 				match.append(1)
 			else:
 				match.append(0)
 
 		# add to cart
 		if 0 not in match:
+			match = []
 			for keyword in keywords_style:
-				if keyword in style:
+				if keyword.title() in style:
 					match.append(1)
 				else:
 					match.append(0)
 			if 0 not in match:
-				print('FOUND: ' + name + ' at ' + base_url + url)
+				print('FOUND: ' + model + ' at ' + base_url + url)
 				add_to_cart(soup, base_url+url)
+			else:
+				sys.exit('Sorry, couldnt find {} in {}'.format(model, style))
 
 
 def add_to_cart(soup, url):
@@ -122,7 +126,7 @@ def add_to_cart(soup, url):
 
 		session.post(base_url + form['action'], data=payload, headers=headers)
 		print('Added to cart!')
-		return session
+		checkout(session)
 	else:
 		sys.exit('Sorry, product is sold out!')
 
@@ -243,7 +247,6 @@ def on_time():
 			sys.exit('Unable to connect to site...')
 		soup1 = bs(response1.text, 'html.parser')
 		links1 = soup1.find_all('a', href=True)
-
 		links_by_keyword1 = []
 		for link in links1:
 			for keyword in keywords_category:
@@ -253,7 +256,6 @@ def on_time():
 						links_by_keyword1.append(link['href'])
 		pool1 = ThreadPool(len(links_by_keyword1))
 		result1 = pool1.map(product_page, links_by_keyword1)
-
 	stop = timeit.default_timer()
 	print(stop - start)  # runtime
 
