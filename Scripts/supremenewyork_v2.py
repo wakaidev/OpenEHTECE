@@ -14,12 +14,12 @@ base_url = 'http://www.supremenewyork.com'
 
 # Inputs
 keywords_category = ['bags']  # Demo stuff, feel free to change
-keywords_model = ['Reflective', 'Repeat', 'Backpack']
+keywords_model = ['mini', 'Repeat', 'Backpack']
 keywords_style = ['Black']
 
 size = ''
 
-use_early_link = True
+use_early_link = False
 
 early_link = ''
 # early_link = 'http://www.supremenewyork.com/shop/jackets/nzpacvjtk' #sold out
@@ -120,7 +120,7 @@ def add_to_cart(soup, url):
 
 		session.post(base_url + form['action'], data=payload, headers=headers)
 		print('Added to cart!')
-		return session
+		checkout(session)
 	else:
 		sys.exit('Sorry, product is sold out!')
 
@@ -237,28 +237,18 @@ else:
 		response1 = session1.get(url)
 	except:
 		sys.exit('Unable to connect to site...')
+	soup1 = bs(response1.text, 'html.parser')
+	links1 = soup1.find_all('a', href=True)
 
-soup1 = bs(response1.text, 'html.parser')
-links1 = soup1.find_all('a', href=True)
-links_by_keyword1 = []
-for link in links1:
-	for keyword in keywords_category:
-		product_link = link['href']
-		if keyword in product_link:
-			if product_link not in links_by_keyword1:
-				links_by_keyword1.append(link['href'])
-
-pool1 = ThreadPool(len(links_by_keyword1))
-
-nosession = True
-while nosession:
-	print('Finding matching products...')
+	links_by_keyword1 = []
+	for link in links1:
+		for keyword in keywords_category:
+			product_link = link['href']
+			if keyword in product_link:
+				if product_link not in links_by_keyword1:
+					links_by_keyword1.append(link['href'])
+	pool1 = ThreadPool(len(links_by_keyword1))
 	result1 = pool1.map(product_page, links_by_keyword1)
-	for session in result1:
-		if not session is None:
-			nosession = False
-			checkout(session)
-			break
 
 stop = timeit.default_timer()
 print(stop - start)  # runtime
