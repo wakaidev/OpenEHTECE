@@ -241,28 +241,18 @@ def on_time():
 			response1 = session1.get(url)
 		except:
 			sys.exit('Unable to connect to site...')
+		soup1 = bs(response1.text, 'html.parser')
+		links1 = soup1.find_all('a', href=True)
 
-	soup1 = bs(response1.text, 'html.parser')
-	links1 = soup1.find_all('a', href=True)
-	links_by_keyword1 = []
-	for link in links1:
-		for keyword in keywords_category:
-			product_link = link['href']
-			if keyword in product_link:
-				if product_link not in links_by_keyword1:
-					links_by_keyword1.append(link['href'])
-
-	pool1 = ThreadPool(len(links_by_keyword1))
-
-	nosession = True
-	while nosession:
-		print('Finding matching products...')
+		links_by_keyword1 = []
+		for link in links1:
+			for keyword in keywords_category:
+				product_link = link['href']
+				if keyword in product_link:
+					if product_link not in links_by_keyword1:
+						links_by_keyword1.append(link['href'])
+		pool1 = ThreadPool(len(links_by_keyword1))
 		result1 = pool1.map(product_page, links_by_keyword1)
-		for session in result1:
-			if not session is None:
-				nosession = False
-				checkout(session)
-				break
 
 	stop = timeit.default_timer()
 	print(stop - start)  # runtime
