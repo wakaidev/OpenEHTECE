@@ -155,6 +155,11 @@ def checkout(session):
 		'Referer': 'https://www.supremenewyork.com/checkout',
 		'Accept-Encoding': 'gzip, deflate, sdch, br'
 	}
+
+	country_abbrv = shipping_country_abbrv
+	if country_abbrv == 'US':
+		country_abbrv = 'USA'
+
 	payload = {
 		'utf8': '✓',
 		'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
@@ -166,7 +171,7 @@ def checkout(session):
 		'order[billing_zip]': shipping_zip,
 		'order[billing_city]': shipping_city,
 		'order[billing_state]': shipping_state,
-		'order[billing_country]': shipping_country_abbrv,
+		'order[billing_country]': country_abbrv,
 		'same_as_billing_address': '1',
 		'store_credit_id': '',
 		'credit_card[type]': card_type,
@@ -179,7 +184,6 @@ def checkout(session):
 		'cnt': '2'
 	}
 	response = session.get('https://www.supremenewyork.com/checkout.js', data=payload, headers=headers)
-
 	payload = {
 		'utf8': '✓',
 		'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
@@ -191,7 +195,7 @@ def checkout(session):
 		'order[billing_zip]': shipping_zip,
 		'order[billing_city]': shipping_city,
 		'order[billing_state]': shipping_state_abbrv,
-		'order[billing_country]': shipping_country_abbrv,
+		'order[billing_country]': country_abbrv,
 		'same_as_billing_address': '1',
 		'store_credit_id': '',
 		'credit_card[type]': card_type,
@@ -213,9 +217,11 @@ def checkout(session):
 
 	if 'Your order has been submitted' in response.text:
 		print('Checkout was successful!')
+		sys.exit(0)
 	else:
 		soup = bs(response.text, 'html.parser')
 		print(soup.find('p').text)
+		sys.exit(0)
 
 
 def on_time():
@@ -257,7 +263,6 @@ def on_time():
 					if product_link not in links_by_keyword1:
 						links_by_keyword1.append(link['href'])
 		pool1 = ThreadPool(len(links_by_keyword1))
-		print(links_by_keyword1)
 		result1 = pool1.map(product_page, links_by_keyword1)  # runtime
 
 sched = BlockingScheduler(timezone='America/New_York')
