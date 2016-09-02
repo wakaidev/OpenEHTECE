@@ -19,10 +19,11 @@ base_url = 'http://www.footlocker.com'
 use_early_link = True
 early_link = "http://www.footlocker.com/product/model:175563/sku:11881010/nike-roshe-one-mens/black/grey/?cm="
 use_keyword = False
-size = "8"
+size = "6.5"
 size = footsites_parse_size(size)
 
-def add_to_cart():
+def add_to_cart(url):
+    response = session.get(url)
     soup = bs(response.text, 'html.parser')
     referer = response.url
 
@@ -55,7 +56,10 @@ def add_to_cart():
     }
 
     response = session.post(base_url + '/catalog/miniAddToCart.cfm?secure=0&', headers=headers, data=payload)
-
+    soup = bs(response.text, 'html.parser')
+    error = soup.find('span', {'class' : 'error'})
+    
+    return (error is None)
 
 def checkout():
     response = session.get('https://www.footlocker.com/checkout/')
@@ -64,9 +68,9 @@ def checkout():
     device_id = soup.find('input', {'id': 'bb_device_id'})['value']
     hbg = soup.find('input', {'id': 'hbg'})['value']
     TID = soup.find('input', {'id': 'emailVerificationForm'})['action']
-    request_key = soup.find('input', {'id': 'requestKey'}['value']
+    request_key = soup.find('input', {'id': 'requestKey'})['value']
 
-   payload = {
+    payload = {
         'CPCOrSourceCode':'',
         'CardCCV':card_cvv,
         'CardExpireDateMM':card_exp_month,
@@ -178,6 +182,8 @@ def checkout():
 
 tick()
 
+global response
+
 session = requests.Session()
 session.headers.update({
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -189,15 +195,14 @@ session.headers.update({
     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 })
 
+url = ""
 
 if use_early_link:
-    response = session.get(early_link)
-    add_to_cart()
-    # checkout()
-
+    url = early_link
 else:
-    response = session.get(base_url + '/product/sku:{}/'.format(product_id))
-    add_to_cart()
-    # checkout()
-
+    url = base_url + '/product/sku:{}/'.format(product_id)
+    
+if add_to_cart(url):
+    checkout()
+        
 tock()
