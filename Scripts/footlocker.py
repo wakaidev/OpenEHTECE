@@ -62,12 +62,12 @@ def add_to_cart(url):
     return (error is None)
 
 def checkout():
-    response = session.get('https://www.footlocker.com/checkout/')
+    response = session.get('https://www.footlocker.com/checkout/?uri=checkout')
     soup = bs(response.text, 'html.parser')
 
     device_id = soup.find('input', {'id': 'bb_device_id'})['value']
     hbg = soup.find('input', {'id': 'hbg'})['value']
-    TID = soup.find('input', {'id': 'emailVerificationForm'})['action']
+    TID = soup.find('form', {'id': 'emailVerificationForm'})['action']
     request_key = soup.find('input', {'id': 'requestKey'})['value']
 
     payload = {
@@ -173,8 +173,9 @@ def checkout():
              'VIPNumber': '',
             'accountBillAddress': {'billMyAddressBookIndex': '-1'}, 'selectedBillAddress': {},
             'billMyAddressBook': []
-            }
         }
+    }
+    print(payload)
     # response = session.post(url, data=payload, headers=headers)
 
 
