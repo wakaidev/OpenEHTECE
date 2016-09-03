@@ -2,16 +2,15 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
 import requests
-import timeit
-import datetime
-import time
 import sys
 import re
 from getconf import *
+from atclibs import *
 
 # TO DO: scrape for early links
 
 # Constants
+
 base_url = 'http://www.supremenewyork.com'
 
 # Inputs
@@ -133,14 +132,6 @@ def add_to_cart(soup, url):
 		sys.exit('Sorry, product is sold out!')
 
 
-def format_phone(n):
-	return '({}) {}-{}'.format(n[:3], n[3:6], n[6:])
-
-
-def format_card(n):
-	return '{} {} {} {}'.format(n[:4], n[4:8], n[8:12], n[12:])
-
-
 def checkout(session):
 	print('Filling out checkout info...')
 	response = session.get('https://www.supremenewyork.com/checkout')
@@ -159,6 +150,15 @@ def checkout(session):
 	country_abbrv = shipping_country_abbrv
 	if country_abbrv == 'US':
 		country_abbrv = 'USA'
+	
+	if card_type.lower() in ['mastercard', 'master card', 'master']:
+		card_ = 'master'
+	elif card_type.lower() == 'visa':
+		card_ = 'visa'
+	elif card_type.lower() == 'american express':
+		card_ = 'american_express'
+	else:
+		sys.exit('You must be using a master, visa, or american express card')
 
 	payload = {
 		'utf8': '✓',
@@ -174,7 +174,7 @@ def checkout(session):
 		'order[billing_country]': country_abbrv,
 		'same_as_billing_address': '1',
 		'store_credit_id': '',
-		'credit_card[type]': card_type,
+		'credit_card[type]': card_,
 		'credit_card[cnb]': format_card(card_number),
 		'credit_card[month]': card_exp_month,
 		'credit_card[year]': card_exp_year,
@@ -226,8 +226,7 @@ def checkout(session):
 
 def on_time():
 	# Main
-	print(datetime.datetime.now())
-	start = timeit.default_timer()
+	tick()
 
 	session1 = requests.Session()
 	session1.headers.update({
@@ -264,7 +263,9 @@ def on_time():
 						links_by_keyword1.append(link['href'])
 		pool1 = ThreadPool(len(links_by_keyword1))
 		result1 = pool1.map(product_page, links_by_keyword1)  # runtime
-
+	
+	tock()
+	
 sched = BlockingScheduler(timezone='America/New_York')
 sched.add_job(on_time, run_date='2016-09-01 10:59:59')
 sched.start()
