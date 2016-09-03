@@ -10,7 +10,6 @@ from atclibs import *
 # TO DO: scrape for early links
 
 # Constants
-from Scripts.atclibs import tock
 
 base_url = 'http://www.supremenewyork.com'
 
