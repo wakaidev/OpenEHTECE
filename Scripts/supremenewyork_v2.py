@@ -149,7 +149,15 @@ def checkout(session):
 	country_abbrv = shipping_country_abbrv
 	if country_abbrv == 'US':
 		country_abbrv = 'USA'
-
+		
+	if card_type.lower() = 'mastercard':
+		card_ = 'master'
+	elif card_type = 'Visa':
+		card_ = 'visa'
+	elif card_type.lower() = 'american express':
+		card_ = 'american_express'
+	else:
+		sys.exit('You must be using a master, visa, or american express card')
 	payload = {
 		'utf8': '✓',
 		'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
