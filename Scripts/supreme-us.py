@@ -12,11 +12,12 @@ from atclibs import *
 base_url = 'http://www.supremenewyork.com'
 
 # Inputs
-keywords_category = ['shirts']  # Demo stuff, feel free to change
-keywords_model = ['mini', 'shadow', 'plaid', 'shirt']
-keywords_style = ['blue']
+keywords_category = ['accessories']  # Demo stuff, feel free to change
+keywords_model = ['crew', 'socks']
+keywords_style = ['white']
 
-size = 'medium'
+# if there is no size, such as for socks, the size is OS
+size = 'OS'
 
 use_early_link = False
 
@@ -28,7 +29,7 @@ early_link = ''
 
 # Functions
 def product_page(url):
-	print('Finding matching products... \n', end="")
+	print('Finding matching products... \n', end='')
 	session = requests.Session()
 	session.headers.update({
 		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -129,6 +130,7 @@ def add_to_cart(soup, url):
 	else:
 		sys.exit('Sorry, product is sold out!')
 
+
 def checkout(session):
 	print('Filling out checkout info...')
 	response = session.get('https://www.supremenewyork.com/checkout')
@@ -196,7 +198,7 @@ def checkout(session):
 		'order[billing_country]': country_abbrv,
 		'same_as_billing_address': '1',
 		'store_credit_id': '',
-		'credit_card[type]': card_,
+		'credit_card[type]': card_type,
 		'credit_card[cnb]': format_card(card_number),
 		'credit_card[month]': card_exp_month,
 		'credit_card[year]': card_exp_year,
@@ -262,4 +264,4 @@ else:
 	print(links_by_keyword1)
 	result1 = pool1.map(product_page, links_by_keyword1)
 
-tock() # runtime
+tock()  # runtime
