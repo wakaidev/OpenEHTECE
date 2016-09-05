@@ -29,7 +29,7 @@ early_link = ''
 
 # Functions
 def product_page(url):
-	print('Finding matching products... \n', end="")
+	print('Finding matching products... \n', end='')
 	session = requests.Session()
 	session.headers.update({
 		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
