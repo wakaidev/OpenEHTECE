@@ -198,7 +198,7 @@ def checkout(session):
 		'order[billing_country]': country_abbrv,
 		'same_as_billing_address': '1',
 		'store_credit_id': '',
-		'credit_card[type]': card_type,
+		'credit_card[type]': card_,
 		'credit_card[cnb]': format_card(card_number),
 		'credit_card[month]': card_exp_month,
 		'credit_card[year]': card_exp_year,
