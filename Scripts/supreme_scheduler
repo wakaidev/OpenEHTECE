@@ -10,7 +10,6 @@ from atclibs import *
 # TO DO: scrape for early links
 
 # Constants
-
 base_url = 'http://www.supremenewyork.com'
 
 # Inputs
@@ -18,6 +17,7 @@ keywords_category = ['shirts']  # Demo stuff, feel free to change
 keywords_model = ['mini', 'shadow', 'plaid', 'shirt']
 keywords_style = ['blue']
 
+# if there is no size, such as for socks, the size is OS
 size = 'medium'
 
 use_early_link = False
