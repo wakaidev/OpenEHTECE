@@ -216,12 +216,11 @@ def checkout(session):
 	response = session.post('https://www.supremenewyork.com/checkout', data=payload, headers=headers)
 
 	if 'Your order has been submitted' in response.text:
-		print('Checkout was successful!')
-		sys.exit(0)
+		print('Checkout was successful, check for a confirmation email!')
 	else:
 		soup = bs(response.text, 'html.parser')
-		print(soup.find('p').text)
-		sys.exit(0)
+		error_msg = soup.find('div', {'class': 'errors'}).text
+		print('\n' + 'ERROR: ' + error_msg)
 
 
 def on_time():
