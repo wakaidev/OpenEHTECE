@@ -222,7 +222,7 @@ def checkout(session):
 	response = session.post('https://www.supremenewyork.com/checkout', data=payload, headers=headers)
 
 	if 'Your order has been submitted' in response.text:
-		print('Checkout was successful')
+		print('Checkout was successful, check for a confirmation email!')
 	else:
 		soup = bs(response.text, 'html.parser')
 		error_msg = soup.find('div', {'class': 'errors'}).text
@@ -265,7 +265,6 @@ else:
 				if product_link not in links_by_keyword1:
 					links_by_keyword1.append(link['href'])
 	pool1 = ThreadPool(len(links_by_keyword1))
-	print(links_by_keyword1)
 	result1 = pool1.map(product_page, links_by_keyword1)
 
 tock()  # runtime
