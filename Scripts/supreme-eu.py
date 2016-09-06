@@ -5,7 +5,7 @@ import sys
 import re
 from getconf import *
 from atclibs import *
-
+ 
 # TODO: scrape for early links
 # TODO: ability to add multiple items to cart
 # TODO: support for all countries in eu
@@ -174,10 +174,10 @@ def checkout(session):
 		'order[billing_name]': first_name + ' ' + last_name,
 		'order[email]': email,
 		'order[tel]': format_phone(phone_number),
-		'order[billing_address]': 'Manadsvagen 62',
+		'order[billing_address]': shipping_address,
 		'order[billing_address_2]': '',
 		'order[billing_address_3]': '',
-		'order[billing_zip]': '17742',
+		'order[billing_zip]': shipping_zip,
 		'order[billing_city]': 'Stockholm',
 		'order[billing_country]': 'SE',
 		'same_as_billing_address': '1',
@@ -198,10 +198,10 @@ def checkout(session):
 		'order[billing_name]': first_name + ' ' + last_name,
 		'order[email]': email,
 		'order[tel]': format_phone(phone_number),
-		'order[billing_address]': 'Manadsvagen 62',
+		'order[billing_address]': shipping_address,
 		'order[billing_address_2]': '',
 		'order[billing_address_3]': '',
-		'order[billing_zip]': '17742',
+		'order[billing_zip]': shipping_zip,
 		'order[billing_city]': 'Stockholm',
 		'order[billing_country]': 'SE',
 		'same_as_billing_address': '1',
