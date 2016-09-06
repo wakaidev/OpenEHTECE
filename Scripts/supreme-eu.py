@@ -6,7 +6,8 @@ import re
 from getconf import *
 from atclibs import *
 
-# TO DO: scrape for early links, ability to add multiple items to cart
+# TODO: scrape for early links
+# TODO: ability to add multiple items to cart
 
 # Constants
 base_url = 'http://www.supremenewyork.com'
@@ -173,10 +174,10 @@ def checkout(session):
 		'order[email]': email,
 		'order[tel]': format_phone(phone_number),
 		'order[billing_address]': shipping_address_1,
-		'order[billing_address_2]': shipping_apt_suite,
+		'order[billing_address_2]': shipping_address_2,
+		'order[billing_address_3]': shipping_apt_suite,
 		'order[billing_zip]': shipping_zip,
 		'order[billing_city]': shipping_city,
-		'order[billing_state]': shipping_state,
 		'order[billing_country]': shipping_country_abbrv,
 		'same_as_billing_address': '1',
 		'credit_card[type]': card_,
@@ -197,10 +198,10 @@ def checkout(session):
 		'order[email]': email,
 		'order[tel]': format_phone(phone_number),
 		'order[billing_address]': shipping_address_1,
-		'order[billing_address_2]': shipping_apt_suite,
+		'order[billing_address_2]': shipping_address_2,
+		'order[billing_address_3]': shipping_apt_suite,
 		'order[billing_zip]': shipping_zip,
 		'order[billing_city]': shipping_city,
-		'order[billing_state]': shipping_state,
 		'order[billing_country]': shipping_country_abbrv,
 		'same_as_billing_address': '1',
 		'store_credit_id': '',
