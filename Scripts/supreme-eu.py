@@ -31,7 +31,7 @@ early_link = ''
 
 # Functions
 def product_page(url):
-	print('Finding matching products...', end='')
+	print('Finding matching products...')
 	session = requests.Session()
 	session.headers.update({
 		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -173,7 +173,7 @@ def checkout(session):
 		'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
 		'order[billing_name]': first_name + ' ' + last_name,
 		'order[email]': email,
-		'order[tel]': format_phone(phone_number),
+		'order[tel]': phone_number,
 		'order[billing_address]': shipping_address_1,
 		'order[billing_address_2]': shipping_address_2,
 		'order[billing_address_3]': shipping_apt_suite,
@@ -197,7 +197,7 @@ def checkout(session):
 		'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
 		'order[billing_name]': first_name + ' ' + last_name,
 		'order[email]': email,
-		'order[tel]': format_phone(phone_number),
+		'order[tel]': phone_number,
 		'order[billing_address]': shipping_address_1,
 		'order[billing_address_2]': shipping_address_2,
 		'order[billing_address_3]': shipping_apt_suite,
