@@ -237,7 +237,6 @@ def checkout(session):
 				print('\n' + 'ERROR: ' + error_msg)
 		except:
 			print('Checkout failed')
-			print(soup)
 
 # Main
 tick()
