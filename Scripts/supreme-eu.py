@@ -173,12 +173,12 @@ def checkout(session):
 		'order[billing_name]': first_name + ' ' + last_name,
 		'order[email]': email,
 		'order[tel]': format_phone(phone_number),
-		'order[billing_address]': shipping_address_1,
-		'order[billing_address_2]': shipping_address_2,
-		'order[billing_address_3]': shipping_apt_suite,
-		'order[billing_zip]': shipping_zip,
-		'order[billing_city]': shipping_city,
-		'order[billing_country]': shipping_country_abbrv,
+		'order[billing_address]': 'Manadsvagen 62',
+		'order[billing_address_2]': '',
+		'order[billing_address_3]': '',
+		'order[billing_zip]': '17742',
+		'order[billing_city]': 'Stockholm',
+		'order[billing_country]': 'SE',
 		'same_as_billing_address': '1',
 		'credit_card[type]': card_,
 		'credit_card[cnb]': format_card(card_number),
@@ -197,12 +197,12 @@ def checkout(session):
 		'order[billing_name]': first_name + ' ' + last_name,
 		'order[email]': email,
 		'order[tel]': format_phone(phone_number),
-		'order[billing_address]': shipping_address_1,
-		'order[billing_address_2]': shipping_address_2,
-		'order[billing_address_3]': shipping_apt_suite,
-		'order[billing_zip]': shipping_zip,
-		'order[billing_city]': shipping_city,
-		'order[billing_country]': shipping_country_abbrv,
+		'order[billing_address]': 'Manadsvagen 62',
+		'order[billing_address_2]': '',
+		'order[billing_address_3]': '',
+		'order[billing_zip]': '17742',
+		'order[billing_city]': 'Stockholm',
+		'order[billing_country]': 'SE',
 		'same_as_billing_address': '1',
 		'store_credit_id': '',
 		'credit_card[type]': card_,
@@ -225,11 +225,18 @@ def checkout(session):
 	response = session.post('https://www.supremenewyork.com/checkout', data=payload, headers=headers)
 	
 	if 'Your order has been submitted' in response.text:
-		print('Checkout was successful')
+		print('Checkout was successful, check for a confirmation email!')
 	else:
-		soup = bs(response.text, 'html.parser')
-		error_msg = soup.find('div', {'class': 'errors'}).text
-		print('\n' + 'ERROR: ' + error_msg)
+		try:
+			soup = bs(response.text, 'html.parser')
+			error_msg = soup.find('div', {'class': 'errors'})
+			if error_msg is None:
+				print(soup.find('p').text)
+			else:
+				print('\n' + 'ERROR: ' + error_msg)
+		except:
+			print('Checkout failed')
+			print(soup)
 
 # Main
 tick()
