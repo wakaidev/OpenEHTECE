@@ -8,6 +8,7 @@ from atclibs import *
 
 # TODO: scrape for early links
 # TODO: ability to add multiple items to cart
+# TODO: support for all countries in eu
 
 # Constants
 base_url = 'http://www.supremenewyork.com'
