@@ -31,7 +31,7 @@ early_link = ''
 
 # Functions
 def product_page(url):
-	print('Finding matching products... \n', end='')
+	print('Finding matching products...', end='')
 	session = requests.Session()
 	session.headers.update({
 		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -176,7 +176,7 @@ def checkout(session):
 		'order[tel]': format_phone(phone_number),
 		'order[billing_address]': shipping_address_1,
 		'order[billing_address_2]': shipping_address_2,
-		'order[billing_address_3]': shipping__apt_suite,
+		'order[billing_address_3]': shipping_apt_suite,
 		'order[billing_zip]': shipping_zip,
 		'order[billing_city]': shipping_city,
 		'order[billing_country]': shipping_country_abbrv,
@@ -200,7 +200,7 @@ def checkout(session):
 		'order[tel]': format_phone(phone_number),
 		'order[billing_address]': shipping_address_1,
 		'order[billing_address_2]': shipping_address_2,
-		'order[billing_address_3]': shipping__apt_suite,
+		'order[billing_address_3]': shipping_apt_suite,
 		'order[billing_zip]': shipping_zip,
 		'order[billing_city]': shipping_city,
 		'order[billing_country]': shipping_country_abbrv,
