@@ -127,10 +127,6 @@ def add_to_cart(soup, url):
 		}
 		
 		session.post(base_url + form['action'], data=payload, headers=headers)
-		
-		response = session.get('http://www.supremenewyork.com/shop/cart')
-		soup = bs(response.text, 'html.parser')
-		
 		checkout(session)
 	else:
 		sys.exit('Sorry, product is sold out!')
