@@ -75,7 +75,9 @@ def product_page(url):
 				print('FOUND: ' + model + ' at ' + base_url + url)
 				add_to_cart(soup, base_url + url)
 			else:
-				sys.exit('Sorry, couldnt find {} in {}'.format(model, style))
+				print('Sorry, couldnt find {} in {}'.format(model, style))
+		else:
+			print('Sorry couldnt find what you are looking for')
 
 
 def add_to_cart(soup, url):
