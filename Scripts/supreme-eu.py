@@ -228,15 +228,12 @@ def checkout(session):
 	if 'Your order has been submitted' in response.text:
 		print('Checkout was successful, check for a confirmation email!')
 	else:
+		soup = bs(response.text, 'html.parser')
 		try:
-			soup = bs(response.text, 'html.parser')
-			error_msg = soup.find('div', {'class': 'errors'})
-			if error_msg is None:
-				print(soup.find('p').text)
-			else:
-				print('\n' + 'ERROR: ' + error_msg)
+			for msg in soup.find_all('div', {'class': 'errors'}):
+				print('\n' + 'ERROR: ' + msg.string)
 		except:
-			print('Checkout failed')
+			print(soup.find('p').text)
 
 # Main
 tick()
