@@ -242,7 +242,6 @@ def checkout(session):
         payload['order[tel]'] = phone_number
         checkout_payload['order[billing_address_2]'] = shipping_address_2
         checkout_payload['order[billing_address_3]'] = shipping_apt_suite
-        checkout_payload['order[terms]'] = '0,1'
         del checkout_payload['order[billing_state]']
     del checkout_payload['cnt']
     
