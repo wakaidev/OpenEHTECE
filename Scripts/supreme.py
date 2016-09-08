@@ -2,6 +2,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
 import requests
 import sys
+import json
 from getconf import *
 from atclibs import *
 
@@ -15,6 +16,7 @@ keyword_category = []
 keyword_model = []
 keyword_style = []
 sizes = []
+matches = []
 
 keyword = True
 checkout_qty = int(input('How many products would you like to checkout? '))
@@ -38,8 +40,8 @@ for input_counter, product in enumerate(range(checkout_qty)):
 			keyword = False
 		
 		category = input('Enter category keyword: ').strip()
-		model = input('Enter model keywords seperated by commas: ').strip()
-		style = input('Enter style (color) keyword: ').strip()
+		model = input('Enter model keywords seperated by commas (actual model must contain all keywords): ').strip().title()
+		style = input('Enter style (color) keyword: ').strip().title()
 		
 		if category == 'tops/sweaters':
 			category = 'tops_sweaters'
@@ -51,11 +53,12 @@ for input_counter, product in enumerate(range(checkout_qty)):
 		early_links.append(False)
 	
 	if input_counter == 0:
-		print('\n' + 'Valid Clothing/Accessory Sizes: Small, Medium, Large, XLarge, OS')
-		print('If there is only one size, enter OS', '\n')
+		print('\n' + 'Valid Clothing/Accessory Sizes: Small, Medium, Large, XLarge, N/A')
+		print('If there is only one size, enter N/A', '\n')
 	
-	size = input('Size: ').strip()
+	size = input('Size: ').strip().title()
 	sizes.append(size)
+	matches.append(False)
 
 country_lookup = {
 	'United States': 'USA',
@@ -101,7 +104,7 @@ if shipping_country is not 'United States':
 	eu = True
 else:
 	eu = False
-	
+
 if card_type.lower() in ['mastercard', 'master card', 'master']:
 	card_ = 'master'
 elif card_type.lower() == 'visa':
@@ -109,72 +112,15 @@ elif card_type.lower() == 'visa':
 elif card_type.lower() == 'american express':
 	card_ = 'american_express'
 elif card_type.lower() == 'solo' and eu is True:
-		card_ = 'solo'
+	card_ = 'solo'
 else:
 	sys.exit('You must use a master, visa, solo (EU only) or an american express card')
 
 
 # Functions
-def product_page(product_url):
-	session = requests.Session()
-	session.headers.update({
-		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
-		              'Chrome/52.0.2743.116 Safari/537.36',
-		'X-XHR-Referer': 'http://www.supremenewyork.com/shop/all',
-		'Referer': 'http://www.supremenewyork.com/shop/all/bags',
-		'Accept': 'text/html, application/xhtml+xml, application/xml',
-		'Accept-Encoding': 'gzip, deflate, sdch',
-		'Accept-Language': 'en-US,en;q=0.8,da;q=0.6',
-		'DNT': '1'
-	})
-	
-	response = session.get(base_url + product_url)
-	
-	h1 = soup.find('h1', {'itemprop': 'name'})
-	p = soup.find('p', {'itemprop': 'model'})
-	
-	if h1 is not None and p is not None:
-		model = h1.string
-		style = p.string
-		
-		match = []
-		for keyword in keyword_model[counter]:
-			if keyword.lower().strip() in model.lower().strip():
-				match.append(1)
-			else:
-				match.append(0)
-		
-		if 0 not in match:
-			match = []
-			for keyword in keyword_style[counter]:
-				if keyword.lower().strip() in style.lower().strip():
-					match.append(1)
-				else:
-					match.append(0)
-			if 0 not in match:
-				print('FOUND: ' + model + ' at ' + base_url + product_url)
-				return {
-					'url': base_url + product_url,
-					'soup': soup
-				}
-			else:
-				return {
-					'url': 'null',
-					'soup': 'null'
-				}
-		else:
-			return {
-				'url': 'null',
-				'soup': 'null'
-			}
-	else:
-		return {
-			'url': 'null',
-			'soup': 'null'
-		}
-
-
-def add_to_cart(session, soup, url):
+def add_to_cart(session, url):
+	response = session.get(url)
+	soup = bs(response.text, "html.parser")
 	product_name = soup.find('h1', {'itemprop': 'name'}).string
 	print('\n' + 'Adding {} to cart...'.format(product_name))
 	
@@ -192,37 +138,23 @@ def add_to_cart(session, soup, url):
 	form = soup.find('form', {'id': 'cart-addf'})
 	csrf_token = soup.find('meta', {'name': 'csrf-token'})['content']
 	
-	# find size
-	sold_out = soup.find('fieldset', {'id': 'add-remove-buttons'}).find('b')
-	if sold_out is not None:
-		print('Sorry, product is sold out!')
-		if counter == checkout_qty - 1:
-			sys.exit(0)
-		else:
-			return
+	if sizes[counter] == 'N/A':
+		size_id = form.find('input', {'id': 'size'})['value']
 	else:
-		if sizes[counter].upper() == 'OS':
-			size_value = form.find('input', {'id': 'size'})['value']
-		else:
-			try:
-				size_value = form.find('option', string=sizes[counter].title())['value']
-			except:
-				print('Sorry, {} is sold out!'.format(sizes[counter]))
-				if counter == checkout_qty - 1:
-					sys.exit(0)
-				else:
-					return
+		size_id = form.find('option', string=sizes[counter])['value']
 	
 	if form is not None:
+		cart = 'cart'
+		if eu:
+			cart = 'basket'
+		
 		payload = {
 			'utf8': '✓',
 			'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
-			'size': size_value,
-			'commit': 'add to cart'
+			'size': size_id,
+			'commit': 'add to ' + cart
 		}
-		if eu:
-			payload['commit'] = 'add to basket'
-			
+		
 		headers = {
 			'Accept': '*/*;q=0.5, text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
 			'Origin': 'http://www.supremenewyork.com',
@@ -253,6 +185,10 @@ def checkout(session):
 		'Accept-Encoding': 'gzip, deflate, sdch, br'
 	}
 	
+	year = card_exp_year
+	if len(card_exp_year) == 2:
+		year = '20' + card_exp_year
+	
 	payload = {
 		'utf8': '✓',
 		'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
@@ -270,7 +206,7 @@ def checkout(session):
 		'credit_card[type]': card_,
 		'credit_card[cnb]': format_card(card_number),
 		'credit_card[month]': card_exp_month,
-		'credit_card[year]': card_exp_year,
+		'credit_card[year]': year,
 		'credit_card[vval]': card_cvv,
 		'order[terms]': '1',
 		'hpcvv': '',
@@ -289,7 +225,7 @@ def checkout(session):
 	session.get('https://www.supremenewyork.com/checkout.js', data=payload, headers=headers)
 	
 	if eu:
-		checkout_payload['order[tel]'] = phone_number
+		payload['order[tel]'] = phone_number
 		checkout_payload['order[billing_address_2]'] = shipping_address_2
 		checkout_payload['order[billing_address_3]'] = shipping_apt_suite
 		del checkout_payload['order[billing_state]']
@@ -352,7 +288,7 @@ for counter, i in enumerate(link_or_keyword):
 				sys.exit()
 			else:
 				continue
-		add_to_cart(checkout_session, soup, early_links[counter])
+		add_to_cart(checkout_session, early_links[counter])
 	else:  # keyword search
 		try:
 			url = base_url + '/shop/all/' + keyword_category[counter] + '/'
@@ -365,32 +301,27 @@ for counter, i in enumerate(link_or_keyword):
 				continue
 		
 		soup1 = bs(response1.text, 'html.parser')
-		links1 = soup1.find_all('a', href=True)
-		
-		basura = ['http://www.supremenewyork.com/shop/faq', 'https://www.supremenewyork.com/checkout',
-		          'http://www.supremenewyork.com/shop']
-		basura += ['http://www.supremenewyork.com/shop/terms', 'http://www.supremenewyork.com/shop/sizing',
-		           'http://www.supremenewyork.com/shop/all', 'http://www.supremenewyork.com/shop/shipping']
-		basura += ['/shop/all', '/shop/new', '/shop/cart', '/shop/terms']
-		
-		links_by_keyword1 = []
-		for link in links1:
-			for keyword in keyword_category[counter]:
-				product_link = link['href']
-				if keyword in product_link and product_link not in basura:
-					if product_link not in links_by_keyword1 and product_link not in basura:
-						if '/shop/all/' not in product_link:
-							links_by_keyword1.append(product_link)
+		h1 = soup1.find_all('h1')
+		for i in h1:
+			for link in i.find_all('a', {'class': 'name-link'}, href=True):
+				match = []
+				model = link.string
+				
+				for keyword in keyword_model[counter]:
+					if keyword in model:
+						match.append(1)
+					else:
+						match.append(0)
+				
+				if 0 not in match:
+					if keyword_style[counter] == i.parent.find('p').string:
+						if i.parent.find('div', {'class': 'sold_out_tag'}) is None:
+							print('FOUND: ' + model + ' at ' + base_url + link['href'])
+							add_to_cart(checkout_session, base_url + link['href'])
+							break
 						else:
-							basura.append(product_link)
-		keyword_link_qty = len(links_by_keyword1)
-		pool1 = ThreadPool(keyword_link_qty)
-		product_dict = pool1.map(product_page, links_by_keyword1)
-		
-		for obj in product_dict:
-			if obj['url'] is not 'null':
-				add_to_cart(checkout_session, obj['soup'], obj['url'])
-				break
+							print('Product sold out')
+ 
 checkout(checkout_session)
 
 tock()  # runtime
