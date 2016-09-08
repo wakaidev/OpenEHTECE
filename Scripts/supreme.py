@@ -316,21 +316,17 @@ for counter, i in enumerate(link_or_keyword):
 				model = link.string
 				
 				for keyword in keyword_model[counter]:
-					if keyword in model:
-						match.append(1)
-					else:
-						match.append(0)
-				
-				if 0 not in match:
-					if keyword_style[counter] == i.parent.find('p').string:
-						if i.parent.find('div', {'class': 'sold_out_tag'}) is None:
-							print('FOUND: ' + model + ' at ' + base_url + link['href'])
-							add_to_cart(checkout_session, base_url + link['href'])
-							products_in_cart.append(True)
+						if keyword not in model:
 							break
 						else:
-							products_in_cart.append(False)
-							print('Sorry, product is sold out!')
+							if keyword_style[counter] == i.parent.find('p').string:
+								if i.parent.find('div', {'class': 'sold_out_tag'}) is None:
+								add_to_cart(checkout_session, base_url + link['href'])
+								products_in_cart.append(True)
+								break
+							else:
+								products_in_cart.append(False)
+								print('Sorry, product is sold out!')
 if True in products_in_cart:
 	checkout(checkout_session)
 
