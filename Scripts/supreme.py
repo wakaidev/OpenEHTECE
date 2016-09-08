@@ -129,7 +129,6 @@ def product_page(product_url):
 	})
 	
 	response = session.get(base_url + product_url)
-	soup = bs(response.text, 'html.parser')
 	
 	h1 = soup.find('h1', {'itemprop': 'name'})
 	p = soup.find('p', {'itemprop': 'model'})
@@ -279,8 +278,7 @@ def checkout(session):
 	}
 	
 	checkout_payload = payload.copy()
-	checkout_payload['order[tel]'] = format_phone(phone_number)
-
+	
 	if eu:
 		payload['order[tel]'] = phone_number
 		payload['order[billing_address_2]'] = shipping_address_2
@@ -291,7 +289,7 @@ def checkout(session):
 	session.get('https://www.supremenewyork.com/checkout.js', data=payload, headers=headers)
 	
 	if eu:
-		
+		checkout_payload['order[tel]'] = phone_number
 		checkout_payload['order[billing_address_2]'] = shipping_address_2
 		checkout_payload['order[billing_address_3]'] = shipping_apt_suite
 		del checkout_payload['order[billing_state]']
