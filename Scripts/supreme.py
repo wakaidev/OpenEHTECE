@@ -277,6 +277,8 @@ search_session.headers.update({
 	'Accept-Language': 'en-US,en;q=0.8,da;q=0.6'
 })
 
+products_in_cart = []
+
 for counter, i in enumerate(link_or_keyword):
 	if i:  # early_link
 		try:
@@ -288,7 +290,13 @@ for counter, i in enumerate(link_or_keyword):
 				sys.exit()
 			else:
 				continue
-		add_to_cart(checkout_session, early_links[counter])
+		sold_out = soup.find('fieldset', {'id': 'add-remove-buttons'}).find('b')
+		if sold_out is not None:
+			print('Sorry, product is sold out!')
+			products_in_cart.append(False)
+		else:
+			add_to_cart(checkout_session, early_links[counter])
+			products_in_cart.append(True)
 	else:  # keyword search
 		try:
 			url = base_url + '/shop/all/' + keyword_category[counter] + '/'
@@ -318,10 +326,12 @@ for counter, i in enumerate(link_or_keyword):
 						if i.parent.find('div', {'class': 'sold_out_tag'}) is None:
 							print('FOUND: ' + model + ' at ' + base_url + link['href'])
 							add_to_cart(checkout_session, base_url + link['href'])
+							products_in_cart.append(True)
 							break
 						else:
-							print('Product sold out')
- 
-checkout(checkout_session)
+							products_in_cart.append(False)
+							print('Sorry, product is sold out!')
+if True in products_in_cart:
+	checkout(checkout_session)
 
 tock()  # runtime
