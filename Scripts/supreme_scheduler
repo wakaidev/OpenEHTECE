@@ -1,9 +1,8 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
 from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
 import requests
 import sys
-import re
+import json
 from getconf import *
 from atclibs import *
 
@@ -17,6 +16,7 @@ keyword_category = []
 keyword_model = []
 keyword_style = []
 sizes = []
+matches = []
 
 keyword = True
 checkout_qty = int(input('How many products would you like to checkout? '))
@@ -27,7 +27,7 @@ for input_counter, product in enumerate(range(checkout_qty)):
 		link = input('Enter the link: ').strip()
 		early_links.append(link)
 		link_or_keyword.append(True)
-
+		
 		keyword_category.append(False)
 		keyword_model.append(False)
 		keyword_style.append(False)
@@ -38,26 +38,27 @@ for input_counter, product in enumerate(range(checkout_qty)):
 			print('Model: hanes, socks')
 			print('Style: white', '\n')
 			keyword = False
-
+		
 		category = input('Enter category keyword: ').strip()
-		model = input('Enter model keywords seperated by commas: ').strip()
-		style = input('Enter style (color) keyword: ').strip()
-
+		model = input('Enter model keywords seperated by commas (actual model must contain all keywords): ').strip().title()
+		style = input('Enter style (color) keyword: ').strip().title()
+		
 		if category == 'tops/sweaters':
 			category = 'tops_sweaters'
 		keyword_category.append(category)
 		keyword_model.append(model.split(','))
 		keyword_style.append(style)
-
+		
 		link_or_keyword.append(False)
 		early_links.append(False)
-
+	
 	if input_counter == 0:
-		print('\n' + 'Valid Clothing/Accessory Sizes: Small, Medium, Large, XLarge, OS')
-		print('If there is only one size, enter OS', '\n')
-
-	size = input('Size: ').strip()
+		print('\n' + 'Valid Clothing/Accessory Sizes: Small, Medium, Large, XLarge, N/A')
+		print('If there is only one size, enter N/A', '\n')
+	
+	size = input('Size: ').strip().title()
 	sizes.append(size)
+	matches.append(False)
 
 country_lookup = {
 	'United States': 'USA',
@@ -111,76 +112,18 @@ elif card_type.lower() == 'visa':
 elif card_type.lower() == 'american express':
 	card_ = 'american_express'
 elif card_type.lower() == 'solo' and eu is True:
-		card_ = 'solo'
+	card_ = 'solo'
 else:
 	sys.exit('You must use a master, visa, solo (EU only) or an american express card')
 
 
 # Functions
-def product_page(product_url):
-	session = requests.Session()
-	session.headers.update({
-		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
-		              'Chrome/52.0.2743.116 Safari/537.36',
-		'X-XHR-Referer': 'http://www.supremenewyork.com/shop/all',
-		'Referer': 'http://www.supremenewyork.com/shop/all/bags',
-		'Accept': 'text/html, application/xhtml+xml, application/xml',
-		'Accept-Encoding': 'gzip, deflate, sdch',
-		'Accept-Language': 'en-US,en;q=0.8,da;q=0.6',
-		'DNT': '1'
-	})
-
-	response = session.get(base_url + product_url)
-	soup = bs(response.text, 'html.parser')
-
-	h1 = soup.find('h1', {'itemprop': 'name'})
-	p = soup.find('p', {'itemprop': 'model'})
-
-	if h1 is not None and p is not None:
-		model = h1.string
-		style = p.string
-
-		match = []
-		for keyword in keyword_model[counter]:
-			if keyword.lower().strip() in model.lower().strip():
-				match.append(1)
-			else:
-				match.append(0)
-
-		if 0 not in match:
-			match = []
-			for keyword in keyword_style[counter]:
-				if keyword.lower().strip() in style.lower().strip():
-					match.append(1)
-				else:
-					match.append(0)
-			if 0 not in match:
-				print('FOUND: ' + model + ' at ' + base_url + product_url)
-				return {
-					'url': base_url + product_url,
-					'soup': soup
-				}
-			else:
-				return {
-					'url': 'null',
-					'soup': 'null'
-				}
-		else:
-			return {
-				'url': 'null',
-				'soup': 'null'
-			}
-	else:
-		return {
-			'url': 'null',
-			'soup': 'null'
-		}
-
-
-def add_to_cart(session, soup, url):
+def add_to_cart(session, url):
+	response = session.get(url)
+	soup = bs(response.text, "html.parser")
 	product_name = soup.find('h1', {'itemprop': 'name'}).string
 	print('\n' + 'Adding {} to cart...'.format(product_name))
-
+	
 	session.headers.update({
 		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
 		              'Chrome/52.0.2743.116 Safari/537.36',
@@ -191,41 +134,27 @@ def add_to_cart(session, soup, url):
 		'Accept-Language': 'en-US,en;q=0.8,da;q=0.6',
 		'DNT': '1'
 	})
-
+	
 	form = soup.find('form', {'id': 'cart-addf'})
 	csrf_token = soup.find('meta', {'name': 'csrf-token'})['content']
-
-	# find size
-	sold_out = soup.find('fieldset', {'id': 'add-remove-buttons'}).find('b')
-	if sold_out is not None:
-		print('Sorry, product is sold out!')
-		if counter == checkout_qty - 1:
-			sys.exit(0)
-		else:
-			return
+	
+	if sizes[counter] == 'N/A':
+		size_id = form.find('input', {'id': 'size'})['value']
 	else:
-		if sizes[counter].upper() == 'OS':
-			size_value = form.find('input', {'id': 'size'})['value']
-		else:
-			try:
-				size_value = form.find('option', string=sizes[counter].title())['value']
-			except:
-				print('Sorry, {} is sold out!'.format(sizes[counter]))
-				if counter == checkout_qty - 1:
-					sys.exit(0)
-				else:
-					return
-
+		size_id = form.find('option', string=sizes[counter])['value']
+	
 	if form is not None:
+		cart = 'cart'
+		if eu:
+			cart = 'basket'
+		
 		payload = {
 			'utf8': '✓',
 			'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
-			'size': size_value,
-			'commit': 'add to cart'
+			'size': size_id,
+			'commit': 'add to ' + cart
 		}
-		if eu:
-			payload['commit'] = 'add to basket'
-
+		
 		headers = {
 			'Accept': '*/*;q=0.5, text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
 			'Origin': 'http://www.supremenewyork.com',
@@ -236,7 +165,7 @@ def add_to_cart(session, soup, url):
 			'X-CSRF-Token': csrf_token,
 			'Accept-Encoding': 'gzip, deflate'
 		}
-
+		
 		session.post(base_url + form['action'], data=payload, headers=headers)
 		print('Added {} to cart!'.format(product_name))
 
@@ -246,7 +175,7 @@ def checkout(session):
 	response = session.get('https://www.supremenewyork.com/checkout')
 	soup = bs(response.text, 'html.parser')
 	form = soup.find('form', {'action': '/checkout'})
-
+	
 	csrf_token = soup.find('meta', {'name': 'csrf-token'})['content']
 	headers = {
 		'Accept': 'text/html, */*; q=0.01',
@@ -255,7 +184,11 @@ def checkout(session):
 		'Referer': 'https://www.supremenewyork.com/checkout',
 		'Accept-Encoding': 'gzip, deflate, sdch, br'
 	}
-
+	
+	year = card_exp_year
+	if len(card_exp_year) == 2:
+		year = '20' + card_exp_year
+	
 	payload = {
 		'utf8': '✓',
 		'authenticity_token': form.find('input', {'name': 'authenticity_token'})['value'],
@@ -273,41 +206,40 @@ def checkout(session):
 		'credit_card[type]': card_,
 		'credit_card[cnb]': format_card(card_number),
 		'credit_card[month]': card_exp_month,
-		'credit_card[year]': card_exp_year,
+		'credit_card[year]': year,
 		'credit_card[vval]': card_cvv,
 		'order[terms]': '1',
 		'hpcvv': '',
 		'cnt': '1'
 	}
-
+	
 	checkout_payload = payload.copy()
-	checkout_payload['order[tel]'] = format_phone(phone_number)
-
+	
 	if eu:
 		payload['order[tel]'] = phone_number
 		payload['order[billing_address_2]'] = shipping_address_2
 		payload['order[billing_address_3]'] = shipping_apt_suite
 		del payload['store_credit_id']
 		del payload['order[billing_state]']
-
+	
 	session.get('https://www.supremenewyork.com/checkout.js', data=payload, headers=headers)
-
+	
 	if eu:
-
+		payload['order[tel]'] = phone_number
 		checkout_payload['order[billing_address_2]'] = shipping_address_2
 		checkout_payload['order[billing_address_3]'] = shipping_apt_suite
 		del checkout_payload['order[billing_state]']
 	del checkout_payload['cnt']
-
+	
 	headers = {
 		'Origin': 'https://www.supremenewyork.com',
 		'Content-Type': 'application/x-www-form-urlencoded',
 		'Referer': 'https://www.supremenewyork.com/checkout',
 		'Accept-Encoding': 'gzip, deflate, br'
 	}
-
+	
 	response = session.post('https://www.supremenewyork.com/checkout', data=checkout_payload, headers=headers)
-
+	
 	if 'Your order has been submitted' in response.text:
 		print('Checkout was successful, check for a confirmation email!')
 	else:
@@ -322,83 +254,89 @@ def checkout(session):
 
 # Main
 def on_time():
-    tick()
-    checkout_session = requests.Session()
-    checkout_session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/52.0.2743.116 Safari/537.36',
-        'Upgrade-Insecure-Requests': '1',
-        'DNT': '1',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, sdch',
-        'Accept-Language': 'en-US,en;q=0.8,da;q=0.6'
-    })
-
-    search_session = requests.Session()
-    search_session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/52.0.2743.116 Safari/537.36',
-        'Upgrade-Insecure-Requests': '1',
-        'DNT': '1',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, sdch',
-        'Accept-Language': 'en-US,en;q=0.8,da;q=0.6'
-    })
-
-    for counter, i in enumerate(link_or_keyword):
-        if i:  # early_link
-            try:
-                response1 = search_session.get(early_links[counter])
-                soup = bs(response1.text, 'html.parser')
-            except:
-                print('Unable to connect to site...')
-                if counter == checkout_qty - 1:
-                    sys.exit()
-                else:
-                    continue
-            add_to_cart(checkout_session, soup, early_links[counter])
-        else:  # keyword search
-            try:
-                url = base_url + '/shop/all/' + keyword_category[counter] + '/'
-                response1 = search_session.get(url)
-            except:
-                print('Unable to connect to site...')
-                if counter == checkout_qty - 1:
-                    sys.exit()
-                else:
-                    continue
-
-            soup1 = bs(response1.text, 'html.parser')
-            links1 = soup1.find_all('a', href=True)
-
-            basura = ['http://www.supremenewyork.com/shop/faq', 'https://www.supremenewyork.com/checkout',
-                      'http://www.supremenewyork.com/shop']
-            basura += ['http://www.supremenewyork.com/shop/terms', 'http://www.supremenewyork.com/shop/sizing',
-                       'http://www.supremenewyork.com/shop/all', 'http://www.supremenewyork.com/shop/shipping']
-            basura += ['/shop/all', '/shop/new', '/shop/cart', '/shop/terms']
-
-            links_by_keyword1 = []
-            for link in links1:
-                for keyword in keyword_category[counter]:
-                    product_link = link['href']
-                    if keyword in product_link and product_link not in basura:
-                        if product_link not in links_by_keyword1 and product_link not in basura:
-                            if '/shop/all/' not in product_link:
-                                links_by_keyword1.append(product_link)
-                            else:
-                                basura.append(product_link)
-            keyword_link_qty = len(links_by_keyword1)
-            pool1 = ThreadPool(keyword_link_qty)
-            product_dict = pool1.map(product_page, links_by_keyword1)
-
-            for obj in product_dict:
-                if obj['url'] is not 'null':
-                    add_to_cart(checkout_session, obj['soup'], obj['url'])
-                    break
-    checkout(checkout_session)
-
-    tock()  # runtime
+	tick()
 	
+	checkout_session = requests.Session()
+	checkout_session.headers.update({
+		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
+		              'Chrome/52.0.2743.116 Safari/537.36',
+		'Upgrade-Insecure-Requests': '1',
+		'DNT': '1',
+		'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+		'Accept-Encoding': 'gzip, deflate, sdch',
+		'Accept-Language': 'en-US,en;q=0.8,da;q=0.6'
+	})
+	
+	search_session = requests.Session()
+	search_session.headers.update({
+		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
+		              'Chrome/52.0.2743.116 Safari/537.36',
+		'Upgrade-Insecure-Requests': '1',
+		'DNT': '1',
+		'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+		'Accept-Encoding': 'gzip, deflate, sdch',
+		'Accept-Language': 'en-US,en;q=0.8,da;q=0.6'
+	})
+	
+	products_in_cart = []
+	
+	for counter, i in enumerate(link_or_keyword):
+		if i:  # early_link
+			try:
+				response1 = search_session.get(early_links[counter])
+				soup = bs(response1.text, 'html.parser')
+			except:
+				print('Unable to connect to site...')
+				if counter == checkout_qty - 1:
+					sys.exit()
+				else:
+					continue
+			sold_out = soup.find('fieldset', {'id': 'add-remove-buttons'}).find('b')
+			if sold_out is not None:
+				print('Sorry, product is sold out!')
+				products_in_cart.append(False)
+			else:
+				add_to_cart(checkout_session, early_links[counter])
+				products_in_cart.append(True)
+		else:  # keyword search
+			try:
+				url = base_url + '/shop/all/' + keyword_category[counter] + '/'
+				response1 = search_session.get(url)
+			except:
+				print('Unable to connect to site...')
+				if counter == checkout_qty - 1:
+					sys.exit()
+				else:
+					continue
+			
+			soup1 = bs(response1.text, 'html.parser')
+			h1 = soup1.find_all('h1')
+			for i in h1:
+				for link in i.find_all('a', {'class': 'name-link'}, href=True):
+					match = []
+					model = link.string
+					
+					for keyword in keyword_model[counter]:
+						if keyword in model:
+							match.append(1)
+						else:
+							match.append(0)
+					
+					if 0 not in match:
+						if keyword_style[counter] == i.parent.find('p').string:
+							if i.parent.find('div', {'class': 'sold_out_tag'}) is None:
+								print('FOUND: ' + model + ' at ' + base_url + link['href'])
+								add_to_cart(checkout_session, base_url + link['href'])
+								products_in_cart.append(True)
+								break
+							else:
+								products_in_cart.append(False)
+								print('Sorry, product is sold out!')
+	if True in products_in_cart:
+		checkout(checkout_session)
+	
+	tock()  # runtime
+
 sched = BlockingScheduler(timezone='America/New_York')
-sched.add_job(on_time, run_date='2016-09-01 10:59:59')
+sched.add_job(on_time, run_date='2016-09-08 10:59:59')
 sched.start()
