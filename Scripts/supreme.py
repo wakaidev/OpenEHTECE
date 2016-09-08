@@ -2,7 +2,6 @@ from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
 import requests
 import sys
-import re
 from getconf import *
 from atclibs import *
 
