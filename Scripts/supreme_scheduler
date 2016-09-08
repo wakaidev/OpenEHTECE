@@ -316,15 +316,11 @@ def on_time():
 					model = link.string
 					
 					for keyword in keyword_model[counter]:
-						if keyword in model:
-							match.append(1)
+						if keyword not in model:
+							break
 						else:
-							match.append(0)
-					
-					if 0 not in match:
-						if keyword_style[counter] == i.parent.find('p').string:
-							if i.parent.find('div', {'class': 'sold_out_tag'}) is None:
-								print('FOUND: ' + model + ' at ' + base_url + link['href'])
+							if keyword_style[counter] == i.parent.find('p').string:
+								if i.parent.find('div', {'class': 'sold_out_tag'}) is None:
 								add_to_cart(checkout_session, base_url + link['href'])
 								products_in_cart.append(True)
 								break
