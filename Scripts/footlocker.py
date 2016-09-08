@@ -7,6 +7,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from bs4 import BeautifulSoup as bs
 from getconf import *
 from atclibs import *
+from selenium import webdriver
 
 """
 NOTE:
@@ -62,6 +63,14 @@ def add_to_cart(url):
     return (error is None)
 
 def checkout():
+    cookies = session.cookies.get_dict()
+    
+    for i in cookies:
+        driver.execute_script("document.cookie = \"" + i + "=" + cookies[i] + ";path=/;domain=.footlocker.com\"");
+                          
+    driver.get('http://www.footlocker.com/shoppingcart/?sessionExpired=true')
+    driver.execute_script("inventoryCheck_panel.open();")
+    
     response = session.get('https://www.footlocker.com/checkout/?uri=checkout')
     soup = bs(response.text, 'html.parser')
 
@@ -185,10 +194,13 @@ tick()
 
 global response
 
+driver = webdriver.Firefox()
+driver.get(base_url)
+driver.delete_all_cookies()
+
 session = requests.Session()
 session.headers.update({
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/52.0.2743.116 Safari/537.36',
+    'User-Agent': '"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0"',
     'DNT': '1',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     'Accept-Encoding': 'gzip, deflate, sdch',
@@ -204,6 +216,7 @@ else:
     url = base_url + '/product/sku:{}/'.format(product_id)
     
 if add_to_cart(url):
+    print('CHECKOUT')
     checkout()
         
 tock()
