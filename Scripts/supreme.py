@@ -251,7 +251,7 @@ def checkout(session):
         'Referer': 'https://www.supremenewyork.com/checkout',
         'Accept-Encoding': 'gzip, deflate, br'
     }
-    
+
     response = session.post('https://www.supremenewyork.com/checkout', data=checkout_payload, headers=headers)
     
     if 'Your order has been submitted' in response.text:
@@ -267,7 +267,7 @@ def checkout(session):
 
 
 # Main
-tick()
+start = tick()
 
 checkout_session = requests.Session()
 checkout_session.headers.update({
