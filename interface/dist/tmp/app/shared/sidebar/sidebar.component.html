@@ -1,0 +1,26 @@
+<div id="wrapper">
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <h3>active scripts</h3>
+            <h4 *ngIf="scriptService.activeScripts.length === 0">none</h4>
+            <div class="sidebar-divider"></div>
+            <h3>cart</h3>
+            <h4 *ngIf="scriptService.cart.length === 0">empty</h4>
+            <li *ngFor="let item of scriptService.cart">
+                <span>{{item.site.name}}</span>
+                <div *ngFor="let property of item.properties">{{property.attribute}}: {{property.value}}</div>
+            </li>
+        </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+</div>
