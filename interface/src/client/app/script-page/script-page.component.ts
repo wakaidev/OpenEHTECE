@@ -57,9 +57,11 @@ export class ScriptPageComponent {
     
     startScript() {
         this.scriptRunning = true;
+        this.scriptService.runScript(this.script);
     }
     
     stopScript() {
         this.scriptRunning = false;
+        this.scriptService.stopScript(this.script);
     }
 }

@@ -3,11 +3,15 @@
     <div id="sidebar-wrapper">
         <ul class="sidebar-nav">
             <h3>active scripts</h3>
-            <h4 *ngIf="scriptService.activeScripts.length === 0">none</h4>
+            <h4 *ngIf="!scriptService.scriptsRunning">none</h4>
+            <li *ngFor="let script of scriptService.activeScriptsArray" (click)="gotoScript(script.id)">
+                <span>{{script.name}}</span>
+                <div *ngFor="let input of script.inputs">{{input.name}}: {{input.value}}</div>
+            </li>
             <div class="sidebar-divider"></div>
             <h3>cart</h3>
             <h4 *ngIf="scriptService.cart.length === 0">empty</h4>
-            <li *ngFor="let item of scriptService.cart">
+            <li *ngFor="let item of scriptService.cart" (click)="gotoScript(item.site.id)">
                 <span>{{item.site.name}}</span>
                 <div *ngFor="let property of item.properties">{{property.attribute}}: {{property.value}}</div>
             </li>

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ScriptService } from '../script/index';
+import { Router } from '@angular/router';
 
 @Component({
     moduleId: module.id,
@@ -9,5 +10,10 @@ import { ScriptService } from '../script/index';
 })
 
 export class SidebarComponent {
-    constructor(private scriptService: ScriptService) {}
+    constructor(private scriptService: ScriptService,
+                private router: Router) {}
+                
+    gotoScript(id: number) {
+        this.router.navigate(['/script/' + id]);
+    }
 }

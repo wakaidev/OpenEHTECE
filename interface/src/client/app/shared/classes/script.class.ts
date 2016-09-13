@@ -15,5 +15,6 @@ class Input {
     description: string;
     placeholder: string;
     values: any[]; // Array of preset values (for selects/radios/inputs with defaults)
+    value: any; // Default value;
     restriction: any;
 }

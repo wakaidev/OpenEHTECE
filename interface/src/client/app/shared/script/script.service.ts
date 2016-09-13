@@ -1,21 +1,37 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
-import { Item } from '../classes/index';
+import { Item, Script } from '../classes/index';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 
 @Injectable()
 export class ScriptService {
     private cart: Item[] = [];
-    private activeScripts: any[] = [];
+    private activeScripts: any = {};
 
     constructor(private http: Http) {}
   
-    get(): Observable<string[]> {
-        return this.http.get('/assets/data.json')
+    executeScript(script: Script): Promise<any> {
+        let items: any = [];
+        for (let i = 0; i < this.cart.length; i++) {
+            if (this.cart[i].site.id === script.id) {
+                items.push(this.cart[i]);
+            }
+        }
+        let toExecute = {
+            id: script.id,
+            items: items
+        };
+        let p = new Promise<any>((resolve, reject) => {
+            this.http.post('http://127.0.0.1:5000/script/', toExecute)
                         .map((res: Response) => res.json())
-                        .catch(this.handleError);
+                        .catch(this.handleError)
+                        .subscribe((data) => {
+                            resolve(data);
+                        })
+        });
+        return p;
     }
 
     private handleError(error: any) {
@@ -31,6 +47,7 @@ export class ScriptService {
                 return true;
             }
         }
+        return false;
     }
     
     addToCart(item: Item) {
@@ -39,6 +56,25 @@ export class ScriptService {
     
     getCart() {
         return this.cart;
+    }
+    
+    runScript(script: Script) {
+        this.activeScripts[script.name] = script;
+        this.executeScript(script).then((result) => {
+            console.log(result);
+        });
+    }
+    
+    stopScript(script: Script) {
+        delete this.activeScripts[script.name];
+    }
+    
+    get scriptsRunning() {
+        return JSON.stringify(this.activeScripts) !== "{}";
+    }
+    
+    get activeScriptsArray() {
+        return Object.keys(this.activeScripts).map(key => this.activeScripts[key]);
     }
 }
 

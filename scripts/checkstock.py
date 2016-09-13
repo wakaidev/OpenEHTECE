@@ -240,9 +240,10 @@ def asos():
     print ('ASOS...')
     response = session.get('http://www.asos.com/search/' + query + '?q=' + query)
     soup = bs(response.text, 'html.parser')
-    item = soup.find('a', {'class' : 'add-to-bag'})
-    if not item is None:
-        printToSheet(soup.find('title').getText(), soup.find('link', {'rel' : 'alternate'})['href'])
+    items = soup.find_all('a', {'class' : 'product'})
+    for item in items:
+        if not item is None:
+            printToSheet(soup.find('span', {'class': 'name'}).getText(), item['href'])
 
 
 def printToSheet(title, link):
