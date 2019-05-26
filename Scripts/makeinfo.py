@@ -36,6 +36,7 @@ if billing in ["Y", "Yes"]:
 	configuration["billing_state"] = input("Please enter your billing state (not abbreviated): ")
 	configuration["billing_state_abbrv"] = input("Please enter your billing state (abbreviated): ")
 	configuration["billing_country"] = input("Please enter your billing country: ")
+	configuration["billing_country_abbrv"] = input("Please enter your billing country (abbreviated): ")
 	configuration["billing_zip"] = input("Please enter your billing zip/post code: ")
 else:
 	configuration["billing_address_1"] = configuration["shipping_address_1"]
